@@ -1,4 +1,4 @@
-class Event{
+class EventBase {
     #canceled = false;
 
     /**
@@ -13,3 +13,5 @@ class Event{
         return this.#canceled;
     }
 }
+
+export {EventBase}
