@@ -11,6 +11,7 @@ class Entity {
     sizeY = 0;
     scale = 0;
     #UUID;
+    m;//質量
 
     gravityProperties = {
         "g": 0,
@@ -38,10 +39,11 @@ class Entity {
         })
     }.bind(this);
 
-    constructor(body_size, scale) {
+    constructor(body_size, scale, m=10) {
         this.#UUID = crypto.randomUUID();
         this.sizeX = body_size[0]*scale;
         this.sizeY = body_size[1]*scale;
+        this.m = m;
         const material = new THREE.MeshNormalMaterial();
         const entityGeo = new THREE.BoxGeometry(this.sizeX, this.sizeY, 0);
         this.entity = new THREE.Mesh(entityGeo, material);
@@ -253,7 +255,7 @@ class Entity {
         if(this.gravityProperties.fallStart) {
             const g = this.gravityProperties.g; //重力加速度を取得
             const t = (new Date().getTime() - this.gravityProperties.fallStartTime.getTime())/1000; //経過時間を秒で取得
-            const v0 = this.gravityProperties.initialSpeed/((t+1)*3);
+            const v0 = this.gravityProperties.initialSpeed;
             const y = v0 * t - (0.5 * g * t*t); //自由落下の公式により計算
             const entity_fall_y = this.getPosition.y+y //プレイヤーの座標が何ブロック下になるかを計算
 
@@ -269,6 +271,7 @@ class Entity {
                     this.entityGravityEvent(new EntityGravityEvent(this.getPosition.x, block_y+1.01, state, this.gravityProperties.fallStartTime)); //イベントの呼び出し
                     this.setPosition(this.getPosition.x, block_y+1.01);
                     this.gravityProperties.fallStart = false;
+                    this.gravityProperties.initialSpeed = 0;
                     return;
                 }
             } else {

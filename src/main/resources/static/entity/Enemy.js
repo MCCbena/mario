@@ -7,6 +7,7 @@ class Enemy extends Entity{
         this.gravityProperties.g = 2;
         this.moving=0.1;
 
+        this.time = new Date().getTime();
         this.addTickLoop(this.loop_move.bind(this));
     }
 
@@ -22,7 +23,8 @@ class Enemy extends Entity{
                 this.moving = -this.moving;
             }
         }
-        this.addPosition(this.moving, 0);
+        console.log(new Date().getTime() - this.time);
+        if (new Date().getTime() - this.time > 10) this.addPosition(this.moving, 0);
     }
 
     entityContactEvent(e) {
