@@ -23,7 +23,6 @@ function init() {
     camera.setPosition(width/scale/2, height/scale/2);
     //camera.setPosition(0, -2);
 
-    //プレイヤーを生成
     const player = new Player(scale);
     player.setPosition(1, 4);
 
@@ -40,12 +39,12 @@ function init() {
         const enemy = new Enemy(scale);
         world.spawnEntity(enemy);
         enemy.setPosition(1, 10);
-        const enemy2 = new Enemy(scale);
-        world.spawnEntity(enemy2);
-        enemy2.setPosition(5, 10);
+        //const enemy2 = new Enemy(scale);
+        //world.spawnEntity(enemy2);
+        //enemy2.setPosition(5, 10);
 
-        world.getScene().addTickLoop(camera.updateStatus.bind(camera));
-        world.getScene().render(renderer, camera.camera);
+        world.scene.addTickLoop(camera.updateStatus.bind(camera));
+        world.scene.render(renderer, camera);
     });
 }
 

@@ -4,6 +4,7 @@ import {EntityContactEvent} from "../Events/EntityContactEvent.js";
 import {EntityIsOnGroundEvent} from "../Events/EntityIsOnGroundEvent.js";
 import {EntityDeathEvent} from "../Events/EntityDeathEvent.js";
 import {EntityGravityEvent} from "../Events/EntityGravityEvent.js";
+import {EntityLandingEvent} from "../Events/EntityLandingEvent.js";
 
 class Entity {
     world;
@@ -27,6 +28,7 @@ class Entity {
     }
 
     loopMethods = [];
+    removeMethod = [];
 
 
     loopFunction = function (){
@@ -36,7 +38,19 @@ class Entity {
             }else{
                 temp.method(temp.arg);
             }
-        })
+        });
+
+        this.removeMethod.forEach(method =>{
+            let index = 0
+            for (let loopMethod of this.loopMethods) {
+                if(loopMethod.method === method){
+                    this.loopMethods.splice(index, 1);
+                    break;
+                }
+                index++;
+            }
+        });
+        this.removeMethod = [];
     }.bind(this);
 
     constructor(body_size, scale, m=10) {
@@ -51,6 +65,14 @@ class Entity {
         this.entity.onBeforeRender = () => {
             this.status.isOnCamera=true;
         }
+        //ワールドの範囲外に進出した瞬間にkill
+        this.addTickLoop(function (){
+            const position = this.getPosition;
+            if(position.x < -this.bodySize.x || position.y <= 0.1 ||
+            position.x > this.world.getWidth+1){
+                this.kill();
+            }
+        }.bind(this));
 
         //イベントハンドラ
         this.addTickLoop(this.#applyGravity.bind(this));
@@ -60,15 +82,7 @@ class Entity {
             if(this.status.isOnGround) this.entityIsOnGroundEvent(new EntityIsOnGroundEvent());
         }.bind(this));//エンティティが地面に接触しているとき
         this.addTickLoop(function () { //エンティティと接触した時
-            for (const entitiesKey of this.world.entities) {
-                if(entitiesKey !== this){
-                    const threshold_x = entitiesKey.bodySize.x/2 + this.bodySize.x/2;
-                    const threshold_y = entitiesKey.bodySize.y/2 + this.bodySize.y/2;
-                    if(Math.abs(entitiesKey.getPosition.x - this.getPosition.x) < threshold_x && Math.abs(entitiesKey.getPosition.y - this.getPosition.y) < threshold_y){
-                        this.entityContactEvent(new EntityContactEvent(entitiesKey));
-                    }
-                }
-            }
+            this.#callContactEvent(this.getPosition.x, this.getPosition.y);
         }.bind(this));
     }
 
@@ -101,11 +115,16 @@ class Entity {
     }
 
     /**
-     *
+     * エンティティのティックループにメソッドを追加します。すでに追加済みのメソッドは追加されません。
      * @param method {method}
      * @param arg
      */
     addTickLoop(method, arg=null){
+        for (let loopMethod of this.loopMethods) {
+            if(loopMethod.method===method){
+                return;
+            }
+        }
         this.loopMethods.push({
             "method": method,
             "arg": arg
@@ -113,9 +132,18 @@ class Entity {
     }
 
     /**
-     * 指定した向きにある特定の範囲の中で当たる可能性があるブロックが存在するか返します
+     * エンティティのティックループに追加されているメソッドを削除します。注意として、sceneのティックループのように削除はすぐに実行されるわけではありません。
+     */
+    removeTickLoop(method){
+        this.removeMethod.push(method);
+    }
+
+    /**
+     * 指定した向きにあるブロックの中で一番プレイヤーに近いものの座標を返します。
+     *
+     * top/bottomはy座標, right/leftはx座標を返します。
      * @param direction {string} {top/bottom/right/left}
-     * @return number
+     * @return {number}
      **/
     getNextBlock(direction){
         const world = this.world;
@@ -237,6 +265,7 @@ class Entity {
         const hitblocks = this.getHitInBlock();
 
         for (let topElement of hitblocks[place]) {
+            if (topElement.getType === undefined) return false; //ワールドの範囲外に進出
             if(topElement.getType !== Material.AIR) {
                 return true;
             }
@@ -244,7 +273,16 @@ class Entity {
         return false;
     }
 
+
+
     #applyGravity(){
+        const call_contact_event = function (start_x, start_y, end_x, end_y){
+            for (let x = start_x; x <= end_x; x+=0.1) {
+                for (let y = start_y; y < end_y; y+=0.1) {
+                    if(this.#callContactEvent(x, y)) return;
+                }
+            }
+        }.bind(this);
         //プレイヤーが落下を開始した時に動作
         if(!this.status.isOnGround && !this.gravityProperties.fallStart) {
             this.gravityProperties.fallStart = true;
@@ -262,30 +300,35 @@ class Entity {
             let state= "flying";
             if (y <= 0) state = "fall";
             //プレイヤーが上昇しているか降下しているかを判定
-
             if (y <= 0) {
                 //落下の当たり判定制御
-                const block_y = this.getNextBlock("bottom")
+                const block_y = this.getNextBlock("bottom");
                 if(entity_fall_y <= block_y+1){
+                    //イベントハンドラーを呼び出し
+                    this.entityLandingEvent(new EntityLandingEvent(this.getPosition.x, block_y+1.01, "falling", this.gravityProperties.fallStartTime));
+                    call_contact_event(this.getPosition.x, block_y+1.01, this.getPosition.x, this.getPosition.y);
                     //プレイヤーの座標をブロックの座標+1に設定し、自由落下を解除
-                    this.entityGravityEvent(new EntityGravityEvent(this.getPosition.x, block_y+1.01, state, this.gravityProperties.fallStartTime)); //イベントの呼び出し
                     this.setPosition(this.getPosition.x, block_y+1.01);
                     this.gravityProperties.fallStart = false;
                     this.gravityProperties.initialSpeed = 0;
                     return;
-                }
+                }else call_contact_event(this.getPosition.x, this.getPosition.y+y, this.getPosition.x, this.getPosition.y);
+
             } else {
                 //上昇時の当たり判定制御
                 const block_y = this.getNextBlock("top");
                 if((entity_fall_y + this.bodySize.y >  block_y && block_y !== -1) && !this.isHitInWorldObject("right") && !this.isHitInWorldObject("left")){
+                    //イベントハンドラーを呼び出し
+                    call_contact_event(this.getPosition.x, this.getPosition.y, this.getPosition.x, block_y - this.bodySize.y);
                     //プレイヤーの座標をブロックの座標+1に設定し、初速を0
-                    this.entityGravityEvent(new EntityGravityEvent(this.getPosition.x, block_y - this.bodySize.y, state, this.gravityProperties.fallStartTime)); //イベントの呼び出し
                     this.setPosition(this.getPosition.x, block_y - this.bodySize.y);
                     this.gravityProperties.initialSpeed = 0;
                     return;
-                }
+                }else call_contact_event(this.getPosition.x, this.getPosition.y, this.getPosition.x, y);
             }
-            this.entityGravityEvent(new EntityGravityEvent(this.getPosition.x, y, state, this.gravityProperties.fallStartTime)); //イベントの呼び出し
+            const e = new EntityGravityEvent(this.getPosition.x, this.getPosition.y+y, state, this.gravityProperties.fallStartTime);
+            this.entityGravityEvent(e); //イベントの呼び出し
+            if(e.getCanceled) return;
             this.addPosition(0, y);
         }
     }
@@ -304,27 +347,67 @@ class Entity {
         const e = new EntityDeathEvent();
         this.entityDeathEvent(e);
         if(e.getCanceled) return;
-        const scene = this.world.getScene();
+        
+        const scene = this.world.scene;
         scene.removeTickLoop(this.loopFunction);
         scene.remove(this.entity);
-        const i = 0;
+        let i = 0;
         for (let entitiesKey of this.world.entities) {
             if(entitiesKey.UUID === this.UUID){
                 this.world.entities.splice(i, 1);
                 break;
             }
+            i++;
         }
     }
 
+    /**
+     * エンティティと接触したときに発動するentityContactEventの発生を制御するメソッド
+     * @param x {Number}
+     * @param y {Number}
+     *
+     * @returns {boolean} イベントが実行したか
+     */
+    #callContactEvent(x, y){
+        for (const entitiesKey of this.world.entities) {
+            if(entitiesKey !== this){
+                const threshold_x = entitiesKey.bodySize.x/2 + this.bodySize.x/2;
+                const threshold_y = entitiesKey.bodySize.y/2 + this.bodySize.y/2;
+                if(Math.abs(entitiesKey.getPosition.x - x) < threshold_x && Math.abs(entitiesKey.getPosition.y - y) < threshold_y){
+                    this.entityContactEvent(new EntityContactEvent(entitiesKey));
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     //イベントハンドラ
-    /**@param e{EntityIsOnGroundEvent}**/
+    /**
+     * エンティティが地面に設置している間呼ばれます。
+     * @param e{EntityIsOnGroundEvent}
+     **/
     entityIsOnGroundEvent(e){}
-    /**@param e {EntityContactEvent}**/
+    /**
+     * 別のエンティティに接触した場合呼ばれます。
+     * @param e {EntityContactEvent}
+     **/
     entityContactEvent(e){}
-    /**@param e {EntityDeathEvent}**/
+    /**
+     * エンティティが死亡した場合に呼ばれます。
+     * @param e {EntityDeathEvent}
+     **/
     entityDeathEvent(e){}
-    /**@param e {EntityGravityEvent}**/
+    /**
+     * エンティティが重力の影響を受けている間呼ばれます。
+     * @param e {EntityGravityEvent}
+     **/
     entityGravityEvent(e){}
+    /**
+     * エンティティが地面に着地する瞬間に呼ばれます。
+     * @param e {EntityLandingEvent}
+     **/
+    entityLandingEvent(e){}
 
 }
 

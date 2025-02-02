@@ -2,15 +2,30 @@ import * as THREE from "three";
 
 
 class Property{
-    constructor(id, hitbox=true) {
-        this.id=id;
-        this.hitbox=hitbox;
+    #id;
+    #hitbox;
+    #texturePath = null;
+    #material = null;
+
+    constructor(id,  texturePath=null, hitbox=true) {
+        this.#id=id;
+        this.#hitbox=hitbox;
+
+        if(texturePath!==null) {
+            const loader = new THREE.TextureLoader();
+            const texture = loader.load(texturePath);
+            texture.colorSpace = THREE.SRGBColorSpace;
+            this.#material = new THREE.MeshBasicMaterial({map: texture});
+            this.#texturePath = texturePath;
+        }
     }
 
     get properties(){
         return Object.freeze({
-            "hitbox": this.hitbox,
-            "id": this.id,
+            "hitbox": this.#hitbox,
+            "id": this.#id,
+            "material": this.#material,
+            "texturePath": this.#texturePath
         });
     }
 }
@@ -20,8 +35,8 @@ AIR:空気オブジェクト
 FLOOR:床ブロック
  */
 const Material = Object.freeze({
-    AIR: new Property(0, false),
-    FLOOR: new Property(1, true),
+    AIR: new Property(0, null,false),
+    FLOOR: new Property(1, "images/dotblock.png", true),
 
     //Material振られたIDからキーを取得
     getMaterial(id){
@@ -37,14 +52,22 @@ const Material = Object.freeze({
 
 class BlockObject {
     /**
-     *  @type {Mesh} object
+     *  @type {Number} scale
      *  @type {Property} type
      */
-    constructor(object, type) {
-        /** @type {BlockObject} */ this.object = object;
+    constructor(scale, type) {
+        
+        if (type.properties.material !== null) {
+            const geometry = new THREE.BoxGeometry(parseInt(scale), parseInt(scale), 0);
+            /** @type {THREE.Mesh} */ this.object = new THREE.Mesh(geometry, type.properties.material);
+        }else this.object = null;
+        
         /** @type {Property} */    this.type = type;
     }
 
+    /**
+     * @returns {THREE.Mesh}
+     */
     get getObject(){
         return this.object
     }
@@ -56,11 +79,14 @@ class BlockObject {
 
 class WorldObject {
     entities = [];
+    #scale;
+    #scene = null;
 
-    constructor(width=0, height=0) {
+    constructor(width=0, height=0, scale) {
         /** @type {Number} */this.height = height;
         /** @type {Number} */this.width = width;
         /** @type {BlockObject[BlockObject]} */const worlds = [];
+        /**@type {Number} */this.#scale = scale;
 
         //画面サイズ分AIRオブジェクトを生成して代入
         for(let y = 0; y < height; y++) {
@@ -111,6 +137,9 @@ class WorldObject {
         /** @type Number */ y
     ){
         this.worlds[y][x] = object;
+        if(object.getObject !== null){
+            object.getObject.position.set(parseInt(x*this.#scale), parseInt(y*this.#scale), 0);
+        }
     }
 
     removeBlockObject(
@@ -126,7 +155,7 @@ class WorldObject {
      * @param scene {Scene}
      */
     displayWorld(scene){
-        this.scene = scene;
+        this.#scene = scene;
         for(let x = 0; x < this.width; x++){
             for(let y = 0; y < this.height; y++){
                 if(this.getBlockObject(x, y).getObject != null) scene.add(this.getBlockObject(x, y).getObject);
@@ -139,8 +168,8 @@ class WorldObject {
      */
     spawnEntity(entity){
         entity.world = this;
-        this.getScene().add(entity.entity);
-        this.getScene().addTickLoop(entity.loopFunction);
+        this.scene.add(entity.entity);
+        this.scene.addTickLoop(entity.loopFunction);
 
         this.entities.push(entity);
     }
@@ -155,7 +184,7 @@ class WorldObject {
         const entities = []; 
 
         for (let entity of this.entities) {
-            const entity_loc = entity.position;
+            const entity_loc = entity.getPosition;
             const x1 = x-entity_loc.x;
             const y1 = x-entity_loc.y;
             const distance = Math.sqrt(x1*x1+y1*y1);
@@ -166,8 +195,12 @@ class WorldObject {
         return entities;
     }
 
-    getScene(){
-        return this.scene;
+    /**
+     * worldObjectのベースとなっているシーンを返します。displayWorldメソッドが呼び出されていない場合、nullを返します。
+     * @returns {Scene}
+     */
+    get scene(){
+        return this.#scene;
     }
 }
 
@@ -186,16 +219,12 @@ function getWorld(number, scale) {
     return new Promise((resolve) => {
         socket.onmessage = function (event) {
             const jsonData = JSON.parse(event.data);
-            const worldObject = new WorldObject(jsonData.world_info.width, jsonData.world_info.height);
+            const worldObject = new WorldObject(jsonData.world_info.width, jsonData.world_info.height, scale);
             for (let i = 0; i < jsonData.stage.length; i++) {
                 const stage = jsonData.stage[i];
                 if (stage.type !== 0) {
                     // オブジェクトを作成
-                    const geometry = new THREE.BoxGeometry(parseInt(scale), parseInt(scale), 0);
-                    const material = new THREE.MeshNormalMaterial();
-                    const mesh = new THREE.Mesh(geometry, material);
-                    mesh.position.set(parseInt(stage.x*scale), parseInt(stage.y*scale), 0);
-                    worldObject.setBlockObject(new BlockObject(mesh, Material.getMaterial(stage.type)), stage.x, stage.y);
+                    worldObject.setBlockObject(new BlockObject(scale, Material.getMaterial(stage.type)), stage.x, stage.y);
                 }
             }
             return resolve(worldObject);
@@ -203,4 +232,4 @@ function getWorld(number, scale) {
     })
 }
 
-export {BlockObject, Material, getWorld};
+export {BlockObject, Material, getWorld, WorldObject};

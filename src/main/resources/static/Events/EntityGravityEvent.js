@@ -23,12 +23,17 @@ class EntityGravityEvent extends EventBase{
         this.#time = time;
     }
 
+
+
     /**
-     * 計算のよって移動する次の座標を値を返します。
-     * @returns [x, y]
+     * 計算によって移動する次の座標を値を返します。
+     * @returns {{x, y}}
      */
     get getCalculatedPosition(){
-        return [this.#fall_x, this.#fall_y];
+        return {
+            "x":this.#fall_x,
+            "y": this.#fall_y
+        };
     }
 
     /**

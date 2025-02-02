@@ -15,4 +15,16 @@ function upKey(e){
     }
 }
 
+/*入力された値をある一定の値の中に制限*/
+function limit(min, max, x){
+    if(x>max){
+        return max;
+    }else if(x<min){
+        return min;
+    }
+
+    return x;
+}
+
 export {isDown, downKey, upKey};
+export {limit}
