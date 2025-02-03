@@ -12,6 +12,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class SocketController extends TextWebSocketHandler {
     @Override
@@ -50,6 +51,7 @@ public class SocketController extends TextWebSocketHandler {
             if(i!=2) {
                 if(i+1%10!=0) {
                     BlockObject blockObject = new BlockObject(i, 0, Material.FLOOR);
+                    blockObject.getNbt().put("a", 1);
                     worldObject.setBlock(blockObject);
                 }
             }
@@ -72,6 +74,14 @@ public class SocketController extends TextWebSocketHandler {
             stageJson.put("x", blockObject.getX());
             stageJson.put("y", blockObject.getY());
             stageJson.put("type", blockObject.getType().id());
+
+            ObjectNode nbt = objectMapper.createObjectNode();
+            for(Map.Entry<String, Object> entry : blockObject.getNbt().entrySet()) {
+                if(entry.getValue() instanceof Long value)
+                    nbt.put(entry.getKey(), value);
+            }
+
+            stageJson.set("nbt", nbt);
             arrayNode.add(stageJson);
         });
 

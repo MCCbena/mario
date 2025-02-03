@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import {Material} from "../world-object.js";
 import {EntityContactEvent} from "../Events/EntityContactEvent.js";
 import {EntityIsOnGroundEvent} from "../Events/EntityIsOnGroundEvent.js";
 import {EntityDeathEvent} from "../Events/EntityDeathEvent.js";
@@ -170,14 +169,14 @@ class Entity {
                     switch (direction){
                         case "bottom":
                             for (let y = parseInt(range_height-height_offset); y >= 0; y--) {
-                                if(blocks[y].getType.properties.hitbox && min_or_max < y){
+                                if(blocks[y].hitbox && min_or_max < y){
                                     min_or_max = y;
                                 }
                             }
                             break;
                         case "top":
                             for (let y = parseInt(top_full+height_offset); y < blocks.length; y++) {
-                                if(blocks[y].getType.properties.hitbox && min_or_max > y){
+                                if(blocks[y].hitbox && min_or_max > y){
                                     min_or_max = y;
                                 }
                             }
@@ -195,14 +194,14 @@ class Entity {
                     switch (direction){
                         case "right":
                             for (let x = parseInt(right_full+weight_offset); x < blocks.length; x++) {
-                                if(blocks[x].getType.properties.hitbox && min_or_max > x) {
+                                if(blocks[x].hitbox && min_or_max > x) {
                                     min_or_max = x;
                                 }
                             }
                             break;
                         case "left":
                             for (let x = parseInt(left_full-weight_offset); x >= 0; x--) {
-                                if(blocks[x].getType.properties.hitbox && min_or_max < x) {
+                                if(blocks[x].hitbox && min_or_max < x) {
                                     min_or_max = x;
                                 }
                             }
@@ -265,8 +264,7 @@ class Entity {
         const hitblocks = this.getHitInBlock();
 
         for (let topElement of hitblocks[place]) {
-            if (topElement.getType === undefined) return false; //ワールドの範囲外に進出
-            if(topElement.getType !== Material.AIR) {
+            if(topElement.hitbox) {
                 return true;
             }
         }

@@ -13,7 +13,6 @@ class Player extends Entity {
     addPosition(x, y) {
         if(this.world.scene !== null){
             if(this.world.scene.camera !== null){
-                console.log(this.world.scene.camera.onCameraPosition(this.getPosition.x+x, this.getPosition.y+y));
                 const position = this.world.scene.camera.onCameraPosition(this.getPosition.x+x, this.getPosition.y+y);
                 x = position[0]-this.getPosition.x;
                 y = position[1]-this.getPosition.y;
@@ -35,7 +34,7 @@ class Player extends Entity {
         }
         if(isDown("w")){
             if(this.status.isOnGround){
-                this.jump(2);
+                this.jump(4);
             }
         }
         if(isDown("k")&&this.killed === undefined){

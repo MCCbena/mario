@@ -81,7 +81,6 @@ class Camera{
             if(this.toggleEntityInfo.toggledStart && player.getPosition.x < this.toggleEntityInfo.range[1] && this.getPosition.x < player.getPosition.x){
                 this.setPosition(player.getPosition.x, this.getPosition.y);
             }
-            console.log(`${this.getPosition.x}, ${player.getPosition.x}`)
 
         }
     }

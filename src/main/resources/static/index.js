@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {isDown, downKey, upKey} from "./micro-util.js"
-import {BlockObject, Material, getWorld} from "./world-object.js";
+import {Material, getWorld} from "./world-object.js";
 import {Player} from "./entity/Player.js";
 import {Camera} from "./camera.js";
 import {Scene} from "./scene.js";

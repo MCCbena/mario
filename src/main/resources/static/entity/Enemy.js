@@ -13,13 +13,13 @@ class Enemy extends Entity{
     loop_move(){
 
         for (let rightElement of this.getHitInBlock().right) {
-            if(rightElement.getType.properties.hitbox){
+            if(rightElement.hitbox){
                 this.moving = -this.moving;
             }
         }
 
         for (let leftElement of this.getHitInBlock().left) {
-            if(leftElement.getType.properties.hitbox){
+            if(leftElement.hitbox){
                 this.moving = -this.moving;
             }
         }
