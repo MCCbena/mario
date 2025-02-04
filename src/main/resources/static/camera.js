@@ -94,7 +94,7 @@ class Camera{
         const range_width = this.width/2/this.scale;
         const range_height = this.height/2/this.scale;
 
-        return Math.abs(this.getPosition.x - x) >= range_width || Math.abs(this.getPosition.y - y) >= range_height;
+        return !(Math.abs(this.getPosition.x - x) >= range_width || Math.abs(this.getPosition.y - y) >= range_height);
     }
 
     /**

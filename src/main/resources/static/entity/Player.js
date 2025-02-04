@@ -34,7 +34,7 @@ class Player extends Entity {
         }
         if(isDown("w")){
             if(this.status.isOnGround){
-                this.jump(4);
+                this.jump(2);
             }
         }
         if(isDown("k")&&this.killed === undefined){
@@ -49,7 +49,7 @@ class Player extends Entity {
         }else {
             const entity = e.getTouchedEntity;
             this.setPosition(this.getPosition.x, entity.getPosition.y+entity.bodySize.y);
-            this.jump(1.5);
+            this.jump(this.gravityProperties.initialSpeed+1.5);
             entity.kill();
         }
     }

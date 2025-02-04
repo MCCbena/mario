@@ -4,6 +4,7 @@ import {EntityIsOnGroundEvent} from "../Events/EntityIsOnGroundEvent.js";
 import {EntityDeathEvent} from "../Events/EntityDeathEvent.js";
 import {EntityGravityEvent} from "../Events/EntityGravityEvent.js";
 import {EntityLandingEvent} from "../Events/EntityLandingEvent.js";
+import {EntityInstanceLoopEvent} from "../Events/EntityInstanceLoopEvent.js";
 
 /* #NBTでサポートされている値
 
@@ -37,17 +38,16 @@ class Entity {
 
 
     loopFunction = function (){
-        if(this.world.scene.camera !== null) {
-            console.log(this.world.scene.camera.onCamera(this.getPosition.x, this.getPosition.y));
-            if(1) {
-                this.loopMethods.forEach(temp => {
-                    if (temp.arg === null) {
-                        temp.method();
-                    } else {
-                        temp.method(temp.arg);
-                    }
-                });
-            }
+        const e = new EntityInstanceLoopEvent();
+        this.entityInstanceLoopEvent(e);
+        if(!e.getCanceled) {
+            this.loopMethods.forEach(temp => {
+                if (temp.arg === null) {
+                    temp.method();
+                } else {
+                    temp.method(temp.arg);
+                }
+            });
         }
 
         this.removeMethod.forEach(method =>{
@@ -427,6 +427,12 @@ class Entity {
      * @param e {EntityLandingEvent}
      **/
     entityLandingEvent(e){}
+    /**
+     * エンティティのメインループであるLoopFunctionが呼び出されたときに呼び出されます。
+     * EventBaseのcancelメソッドを用いてLoopFunction自体を停止することも可能です。
+     * @param e {EntityInstanceLoopEvent}
+     */
+    entityInstanceLoopEvent(e){}
 
 }
 

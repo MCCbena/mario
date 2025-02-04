@@ -14,6 +14,7 @@ import xyz.jbcp.mario.stage.Entity.EntityObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class SocketController extends TextWebSocketHandler {
@@ -48,12 +49,12 @@ public class SocketController extends TextWebSocketHandler {
     }
 
     private String getStage(String number) {
-        WorldObject worldObject = new WorldObject(100, 100);
+        WorldObject worldObject = new WorldObject(2000, 2000);
 
         EntityObject player = new EntityObject(1, 4, Actor.Player);
         player.getNbt().put("toggleCamera", true);
         worldObject.addEntity(player);
-        worldObject.addEntity(new EntityObject(4, 10, Actor.Enemy));
+        worldObject.addEntity(new EntityObject(15, 5, Actor.Enemy));
 
         for(int i = 0; i < 100; i++){
             if(i!=2) {

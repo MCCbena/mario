@@ -1,10 +1,8 @@
 import * as THREE from "three";
-import {isDown, downKey, upKey} from "./micro-util.js"
+import {downKey, upKey} from "./micro-util.js"
 import {getWorld} from "./world-object.js";
-import {Player} from "./entity/Player.js";
 import {Camera} from "./camera.js";
 import {Scene} from "./scene.js";
-import {Enemy} from "./entity/Enemy.js";
 
 const scale = 50.0;
 const width = 640;
@@ -22,9 +20,6 @@ function init() {
 
     camera.setPosition(width/scale/2, height/scale/2);
     //camera.setPosition(0, -2);
-
-    const player = new Player(scale);
-    player.setPosition(1, 4);
 
     // ワールドを設定
     let world;
