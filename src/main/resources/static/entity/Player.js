@@ -3,8 +3,8 @@ import {isDown} from "../micro-util.js";
 
 class Player extends Entity {
 
-    constructor(scale) {
-        super([0.6, 1], scale);
+    constructor(scale, nbt) {
+        super([0.6, 1], scale, 10, nbt);
         this.gravityProperties.g = 9.8
 
         this.addTickLoop(this.key_move.bind(this));

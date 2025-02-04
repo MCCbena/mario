@@ -5,6 +5,10 @@ import {EntityDeathEvent} from "../Events/EntityDeathEvent.js";
 import {EntityGravityEvent} from "../Events/EntityGravityEvent.js";
 import {EntityLandingEvent} from "../Events/EntityLandingEvent.js";
 
+/* #NBTでサポートされている値
+
+toggleCamera: bool  カメラをトグルするかを選択します。（1ワールドにつき1エンティティまで）
+ */
 class Entity {
     world;
     sizeX = 0;
@@ -12,6 +16,8 @@ class Entity {
     scale = 0;
     #UUID;
     m;//質量
+
+    nbt;
 
     gravityProperties = {
         "g": 0,
@@ -31,13 +37,18 @@ class Entity {
 
 
     loopFunction = function (){
-        this.loopMethods.forEach(temp=>{
-            if(temp.arg === null){
-                temp.method();
-            }else{
-                temp.method(temp.arg);
+        if(this.world.scene.camera !== null) {
+            console.log(this.world.scene.camera.onCamera(this.getPosition.x, this.getPosition.y));
+            if(1) {
+                this.loopMethods.forEach(temp => {
+                    if (temp.arg === null) {
+                        temp.method();
+                    } else {
+                        temp.method(temp.arg);
+                    }
+                });
             }
-        });
+        }
 
         this.removeMethod.forEach(method =>{
             let index = 0
@@ -52,11 +63,12 @@ class Entity {
         this.removeMethod = [];
     }.bind(this);
 
-    constructor(body_size, scale, m=10) {
+    constructor(body_size, scale, m=10, nbt={}) {
         this.#UUID = crypto.randomUUID();
         this.sizeX = body_size[0]*scale;
         this.sizeY = body_size[1]*scale;
         this.m = m;
+        this.nbt = nbt;
         const material = new THREE.MeshNormalMaterial();
         const entityGeo = new THREE.BoxGeometry(this.sizeX, this.sizeY, 0);
         this.entity = new THREE.Mesh(entityGeo, material);
@@ -271,6 +283,15 @@ class Entity {
         return false;
     }
 
+    /**
+     * NBTから値を取り出すとき、undefinedが返されるのを抑制します。
+     * @param key {String}
+     * @param alternativeValues undefinedを出したときに代わりに出力する値
+     */
+    getNBTsafe(key, alternativeValues){
+        if(this.nbt[key] === undefined) return alternativeValues;
+        else return this.nbt[key];
+    }
 
 
     #applyGravity(){

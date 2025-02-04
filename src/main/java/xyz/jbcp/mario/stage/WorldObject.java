@@ -1,6 +1,9 @@
 package xyz.jbcp.mario.stage;
 
 import jakarta.annotation.Nullable;
+import xyz.jbcp.mario.stage.Block.BlockObject;
+import xyz.jbcp.mario.stage.Block.Material;
+import xyz.jbcp.mario.stage.Entity.EntityObject;
 
 import java.util.ArrayList;
 
@@ -8,9 +11,13 @@ public class WorldObject {
     final private int width;
     final private int height;
     final private ArrayList<BlockObject> blockObjects;
+    final private ArrayList<EntityObject> entityObjects;
+
     public WorldObject(int width, int height) {
         this.width = width;
         this.height = height;
+
+        //ブロック情報を保存する配列を構築
         this.blockObjects = new ArrayList<>();
 
         for(int y = 0; y < this.height; y++){
@@ -19,6 +26,9 @@ public class WorldObject {
                 blockObjects.add(blockObject);
             }
         }
+
+        //エンティティ情報を保存する配列を構築
+        this.entityObjects = new ArrayList<>();
     }
 
     public void setBlock(BlockObject blockObject){
@@ -39,6 +49,14 @@ public class WorldObject {
             }
         }
         return null;
+    }
+
+    public void addEntity(EntityObject entityObject){
+        this.entityObjects.add(entityObject);
+    }
+
+    public ArrayList<EntityObject> getEntities() {
+        return entityObjects;
     }
 
     public ArrayList<BlockObject> getBlocks() {

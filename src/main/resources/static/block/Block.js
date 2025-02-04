@@ -7,14 +7,19 @@ class Block{
     #hitbox;
     mesh = null;
 
+    #nbt = {};
+
     /**
      * @param scale {Number}
      * @param id {Number}
      * @param hitbox {boolean}
+     * @param nbt {{}}
      */
-    constructor(scale, id, hitbox=true) {
+    constructor(scale, id, hitbox=true, nbt={}) {
         this.#id=id;
         this.#hitbox=hitbox;
+
+        this.#nbt = nbt;
     }
 
     generateDefaultMaterial(texturePath){

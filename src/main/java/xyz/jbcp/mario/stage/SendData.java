@@ -1,5 +1,7 @@
 package xyz.jbcp.mario.stage;
 
+import xyz.jbcp.mario.stage.Block.BlockObject;
+
 import java.util.ArrayList;
 
 public class SendData {

@@ -1,8 +1,8 @@
 import {Block} from "./Block.js";
 
 class Air extends Block{
-    constructor(scale) {
-        super(scale, 0, false);
+    constructor(scale, nbt) {
+        super(scale, 0, false, nbt);
     }
 }
 

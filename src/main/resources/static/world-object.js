@@ -1,45 +1,5 @@
-import {Air} from "./block/Air.js";
-import {Floor} from "./block/Floor.js";
-
-
-class Property{
-    #id;
-    #instance;
-
-    /**
-     * @param id {Number}
-     * @param instance {Block}
-     */
-    constructor(id, instance) {
-        this.#id = id;
-        this.#instance = instance;
-    }
-
-    get properties(){
-        return Object.freeze({
-           "id": this.#id,
-           "class": this.#instance,
-        });
-    }
-}
-/*
-typeリスト
-AIR:空気オブジェクト
-FLOOR:床ブロック
- */
-const Material = Object.freeze({
-    AIR: new Property(0, Air),
-    FLOOR: new Property(1, Floor),
-
-    //Materialに振られたIDからキーを取得
-    getMaterial(id){
-        for (let materialKey in Material) {
-            if(id===Material[materialKey].properties.id){
-                return Material[materialKey];
-            }
-        }
-    }
-})
+import {Material} from "./block/Material.js";
+import {Actor} from "./entity/Actor.js";
 
 class WorldObject {
     entities = [];
@@ -103,6 +63,7 @@ class WorldObject {
         this.worlds[y][x] = object;
         if(object.mesh !== null){
             object.mesh.position.set(parseInt(x*this.#scale), parseInt(y*this.#scale), 0);
+            if(this.#scene !== null) this.#scene.add(object.mesh);
         }
     }
 
@@ -124,6 +85,11 @@ class WorldObject {
                 if(this.getBlockObject(x, y).mesh != null) scene.add(this.getBlockObject(x, y).mesh);
             }
         }
+
+        this.entities.forEach(entity=>{
+            scene.add(entity.entity);
+            scene.addTickLoop(entity.loopFunction);
+        });
     }
 
     /**
@@ -131,8 +97,11 @@ class WorldObject {
      */
     spawnEntity(entity){
         entity.world = this;
-        this.scene.add(entity.entity);
-        this.scene.addTickLoop(entity.loopFunction);
+
+        if(this.scene !== null) {
+            this.scene.add(entity.entity);
+            this.scene.addTickLoop(entity.loopFunction);
+        }
 
         this.entities.push(entity);
     }
@@ -184,16 +153,24 @@ function getWorld(number, scale) {
             const jsonData = JSON.parse(event.data);
             console.log(event.data);
             const worldObject = new WorldObject(jsonData.world_info.width, jsonData.world_info.height, scale);
-            for (let i = 0; i < jsonData.stage.length; i++) {
-                const stage = jsonData.stage[i];
+            //ブロック構築用のループ
+            jsonData.stage.forEach(stage=>{
                 if (stage.type !== 0) {
                     // オブジェクトを作成
-                    worldObject.setBlockObject(new (Material.getMaterial(stage.type).properties.class)(scale), stage.x, stage.y);
+                    worldObject.setBlockObject(new (Material.getMaterial(stage.type).properties.class)(scale, stage.nbt), stage.x, stage.y);
                 }
-            }
+            });
+
+            //エンティティ用のループ
+            jsonData.entities.forEach(entity=>{
+                const instanceEntity = new (Actor.getActor(entity.type).properties.class)(scale, entity.nbt);
+                instanceEntity.setPosition(entity.x, entity.y);
+                worldObject.spawnEntity(instanceEntity);
+            })
+
             return resolve(worldObject);
         }
     })
 }
 
-export {Material, getWorld, WorldObject};
+export {getWorld, WorldObject};

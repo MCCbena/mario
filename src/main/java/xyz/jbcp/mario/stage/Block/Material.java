@@ -1,4 +1,4 @@
-package xyz.jbcp.mario.stage;
+package xyz.jbcp.mario.stage.Block;
 
 public enum Material{
     AIR(0),

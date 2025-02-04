@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {isDown, downKey, upKey} from "./micro-util.js"
-import {Material, getWorld} from "./world-object.js";
+import {getWorld} from "./world-object.js";
 import {Player} from "./entity/Player.js";
 import {Camera} from "./camera.js";
 import {Scene} from "./scene.js";
@@ -28,20 +28,16 @@ function init() {
 
     // ワールドを設定
     let world;
-    getWorld("1-1", scale).then(result=>{
+    getWorld("1-1", scale, scene).then(result=>{
         world = result;
 
         world.displayWorld(scene);
-        camera.toggleEntity([0, 20], player);
-        //player.displayEntity(world);
-        world.spawnEntity(player);
-
-        const enemy = new Enemy(scale);
-        world.spawnEntity(enemy);
-        enemy.setPosition(1, 10);
-        //const enemy2 = new Enemy(scale);
-        //world.spawnEntity(enemy2);
-        //enemy2.setPosition(5, 10);
+        for (let entitiesKey of world.entities) {
+            if(entitiesKey.getNBTsafe("toggleCamera", false)){
+                camera.toggleEntity([0, 20], entitiesKey);
+                break;
+            }
+        }
 
         world.scene.addTickLoop(camera.updateStatus.bind(camera));
         world.scene.render(renderer, camera);
