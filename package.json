@@ -9,9 +9,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/MCCbena/mario.git"
-  },
-  "private": true,
-  "dependencies": {
-    "three": "^0.173.0"
   }
 }

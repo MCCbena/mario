@@ -8,7 +8,8 @@ import {EntityInstanceLoopEvent} from "../Events/EntityInstanceLoopEvent.js";
 
 /* #NBTでサポートされている値
 
-toggleCamera: bool  カメラをトグルするかを選択します。（1ワールドにつき1エンティティまで）
+toggleCamera:   bool    カメラをトグルするかを選択します。（1ワールドにつき1エンティティまで）
+noAI:           bool    loopFunctionを実行しません。
  */
 class Entity {
     world;
@@ -38,6 +39,8 @@ class Entity {
 
 
     loopFunction = function (){
+        if(this.getNBTsafe("noAI", false)) return;
+
         const e = new EntityInstanceLoopEvent();
         this.entityInstanceLoopEvent(e);
         if(!e.getCanceled) {

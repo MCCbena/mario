@@ -1,9 +1,11 @@
 import {Entity} from "./Entity.js";
 import {isDown} from "../micro-util.js";
+import {init, renderer} from "../index.js";
+import {callDeathUI} from "../specialScenes/deathUI.js";
 
 class Player extends Entity {
 
-    constructor(scale, nbt) {
+    constructor(scale, nbt={}) {
         super([0.6, 1], scale, 10, nbt);
         this.gravityProperties.g = 9.8
 
@@ -33,8 +35,8 @@ class Player extends Entity {
             }
         }
         if(isDown("w")){
-            if(this.status.isOnGround){
-                this.jump(2);
+            if(!this.gravityProperties.fallStart){
+                this.jump(4);
             }
         }
         if(isDown("k")&&this.killed === undefined){
@@ -52,6 +54,13 @@ class Player extends Entity {
             this.jump(this.gravityProperties.initialSpeed+1.5);
             entity.kill();
         }
+    }
+
+    entityDeathEvent(e) {
+        console.log("death");
+        this.world.scene.stopRender();
+        const camera = this.world.scene.camera;
+        callDeathUI(renderer, this.scale, camera.getWidth, camera.getHeight);
     }
 }
 

@@ -10,10 +10,10 @@ const height = 480;
 const renderer = new THREE.WebGLRenderer({
     canvas: document.getElementById("glcanvas")
 });
-const scene = new Scene();
-const camera = new Camera(width, height, scale);
 
 function init() {
+    const scene = new Scene(0xA0B4FA);
+    const camera = new Camera(width, height, scale);
 
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
@@ -34,7 +34,6 @@ function init() {
             }
         }
 
-        world.scene.addTickLoop(camera.updateStatus.bind(camera));
         world.scene.render(renderer, camera);
     });
 }
@@ -43,3 +42,5 @@ function init() {
 document.onkeydown = downKey;
 document.onkeyup = upKey;
 init();
+
+export {renderer, init}

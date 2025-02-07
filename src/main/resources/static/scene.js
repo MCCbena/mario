@@ -5,9 +5,9 @@ class Scene{
     #camera = null;
     removeMethod = [];
     #method = [];
-    constructor() {
+    constructor(backColor = null) {
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xA0B4FA);
+        if(backColor !== null) this.scene.background = new THREE.Color(backColor);
     }
 
     add(object){
@@ -41,16 +41,38 @@ class Scene{
     }
 
     /**
+     * webGLへシーンのレンダリングを開始します。
      * @param renderer {THREE.WebGLRenderer}
      * @param camera {Camera}
      */
     render(renderer, camera){
         this.#renderer = renderer;
         this.#camera = camera;
+        this.addTickLoop(camera.updateStatus.bind(camera));
 
         this.tick();
     }
+
+    /**
+     * レンダリングを停止します。
+     */
+    stopRender(){
+        this.stop = true;
+    }
+
+    /**
+     * 停止した(stopRenderを実行したレンダリング)を再度実行します。
+     *
+     * 再レンダリングは問題を発生させる恐れがあります。
+     */
+    restartRender(){
+        this.stop = undefined;
+        this.tick();
+    }
+
     tick(){
+        if(this.stop===true) return;
+
         this.#method.forEach(temp=>{
             if(temp.arg === null){
                 temp.method();
