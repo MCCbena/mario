@@ -31,7 +31,6 @@ class Entity {
 
     status = {
         "isOnGround": true,
-        "isOnCamera": false,
     }
 
     loopMethods = [];
@@ -66,19 +65,29 @@ class Entity {
         this.removeMethod = [];
     }.bind(this);
 
+    /**
+     * すべての引数はnullableです。ただし、引数をnullにした場合は必ず代替処理を実施する必要があります。
+     * @param body_size {[width, height]}
+     * @param scale {Number}
+     * @param m {Number}
+     * @param nbt {{}}
+     */
     constructor(body_size, scale, m=10, nbt={}) {
         this.#UUID = crypto.randomUUID();
-        this.sizeX = body_size[0]*scale;
-        this.sizeY = body_size[1]*scale;
-        this.m = m;
-        this.nbt = nbt;
-        const material = new THREE.MeshNormalMaterial();
-        const entityGeo = new THREE.BoxGeometry(this.sizeX, this.sizeY, 0);
-        this.entity = new THREE.Mesh(entityGeo, material);
-        this.scale = scale;
-        this.entity.onBeforeRender = () => {
-            this.status.isOnCamera=true;
+
+        if(body_size !== null && scale !== null) {
+            this.sizeX = body_size[0] * scale;
+            this.sizeY = body_size[1] * scale;
+
+
+            const material = new THREE.MeshNormalMaterial();
+            const entityGeo = new THREE.BoxGeometry(this.sizeX, this.sizeY, 0);
+            this.entity = new THREE.Mesh(entityGeo, material);
         }
+        if(scale !== null) this.scale = scale;
+        if(m !== null) this.m = m;
+        if(nbt !== null) this.nbt = nbt;
+
         //ワールドの範囲外に進出した瞬間にkill
         this.addTickLoop(function (){
             const position = this.getPosition;
@@ -91,7 +100,6 @@ class Entity {
         //イベントハンドラ
         this.addTickLoop(this.#applyGravity.bind(this));
         this.addTickLoop(function () {
-            this.status.isOnCamera = false;
             this.status.isOnGround = this.isHitInWorldObject("bottom");
             if(this.status.isOnGround) this.entityIsOnGroundEvent(new EntityIsOnGroundEvent());
         }.bind(this));//エンティティが地面に接触しているとき
