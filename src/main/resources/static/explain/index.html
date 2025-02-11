@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="utf-8">
+<head>
+    <title>ゲーム説明</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column; /* 縦並びにする */
+            align-items: center; /* 中央揃え */
+        }
+
+        .item {
+            display: flex;
+            width: 600px; /* 幅を調整 */
+            margin: 20px 0; /* 上下の間隔を調整 */
+        }
+
+        .item:nth-child(even) { /* 偶数番目の要素 */
+            flex-direction: row-reverse; /* 左右反転 */
+        }
+
+        .item img {
+            width: 200px; /* 画像の幅を調整 */
+            height: auto; /* 高さを自動調整 */
+            margin: 10px; /* 画像とテキストの間隔を調整 */
+        }
+
+        .item p {
+            flex: 1; /* テキストが残りのスペースを埋める */
+        }
+    </style>
+</head>
+<body>
+<h1>操作方法</h1>
+
+<div class="container">
+    <div class="item">
+        <img src="start.png" alt="ゲーム画像1" width="656" height="490">
+        <p>基本的にA, W, Dを使って操作できます。AとDは移動で、Wはジャンプです。</p>
+    </div>
+    <div class="item">
+        <p>この小さい奴が敵です。敵はいろいろ種類がいます。基本的にはWで敵の上にジャンプすることでマリオと同じように倒すことができます。</p>
+        <img src="enemykill.png" alt="ゲーム画像2">
+    </div>
+    <div class="item">
+        <img src="https://www.sejuku.net/blog/wp-content/uploads/2018/07/java_jar01.jpg" alt="ゲーム画像3">
+        <p>ゲームの説明3</p>
+    </div>
+    <div class="item">
+        <p>ゲームの説明4</p>
+        <img src="https://www.sejuku.net/blog/wp-content/uploads/2018/07/java_jar01.jpg" alt="ゲーム画像4">
+    </div>
+</div>
+
+</body>
+</html>

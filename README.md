@@ -1,7 +1,7 @@
 # 実行条件
 フレームワーク：Spring boot
 
-JDK：Java 22
+JDK：Java 17
 
 以上。
 

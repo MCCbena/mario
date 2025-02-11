@@ -1,6 +1,6 @@
 import {Entity} from "./Entity.js";
 import {isDown} from "../micro-util.js";
-import {init, renderer} from "../index.js";
+import {deathCount, init, minusLife, renderer} from "../index.js";
 import {callDeathUI} from "../specialScenes/deathUI.js";
 
 class Player extends Entity {
@@ -58,9 +58,21 @@ class Player extends Entity {
 
     entityDeathEvent(e) {
         console.log("death");
+        e.setCanceled = true;
+        minusLife();
         this.world.scene.stopRender();
         const camera = this.world.scene.camera;
-        callDeathUI(renderer, this.scale, camera.getWidth, camera.getHeight);
+        camera.setPosition(this.getPosition.x, camera.getPosition.y);
+        const world = callDeathUI(renderer, this.scale, camera.getWidth, camera.getHeight);
+        this.setPosition(1, 4);
+        this.time = new Date().getTime();
+        world.scene.addTickLoop(function () {
+            if(new Date().getTime()-this.time > 2000){
+                world.scene.stopRender();
+                world.entities.forEach(temp=>temp.dispose());
+                this.world.scene.restartRender();
+            }
+        }.bind(this))
     }
 }
 

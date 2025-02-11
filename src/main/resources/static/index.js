@@ -7,6 +7,7 @@ import {Scene} from "./scene.js";
 const scale = 50.0;
 const width = 640;
 const height = 480;
+let deathCount = 4;//残機
 const renderer = new THREE.WebGLRenderer({
     canvas: document.getElementById("glcanvas")
 });
@@ -38,9 +39,14 @@ function init() {
     });
 }
 
+//残機を1マイナス
+function minusLife(){
+    deathCount--;
+}
+
 
 document.onkeydown = downKey;
 document.onkeyup = upKey;
 init();
 
-export {renderer, init}
+export {renderer, init, deathCount, minusLife};

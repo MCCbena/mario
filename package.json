@@ -11,6 +11,7 @@
     "url": "https://github.com/MCCbena/mario.git"
   },
   "dependencies": {
+    "three": "^0.173.0",
     "troika-three-text": "^0.52.3"
   }
 }

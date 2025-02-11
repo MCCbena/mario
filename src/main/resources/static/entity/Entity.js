@@ -287,6 +287,7 @@ class Entity {
         const hitblocks = this.getHitInBlock();
 
         for (let topElement of hitblocks[place]) {
+            if(topElement === null) continue;
             if(topElement.hitbox) {
                 return true;
             }
