@@ -71,16 +71,6 @@ class Scene{
     }
 
     tick(){
-        if(this.stop===true) return;
-
-        this.#method.forEach(temp=>{
-            if(temp.arg === null){
-                temp.method();
-            }else{
-                temp.method(temp.arg);
-            }
-        });
-
         //ループ関数の削除を実装
         this.removeMethod.forEach(method=>{
             let index = 0;
@@ -93,6 +83,15 @@ class Scene{
             }
         });
         this.removeMethod = [];
+        if(this.stop===true) return;
+
+        this.#method.forEach(temp=>{
+            if(temp.arg === null){
+                temp.method();
+            }else{
+                temp.method(temp.arg);
+            }
+        });
 
         this.#renderer.render(this.scene, this.camera.rawCamera);
         requestAnimationFrame(this.tick.bind(this));

@@ -56,6 +56,8 @@ public class SocketController extends TextWebSocketHandler {
         worldObject.addEntity(player);
         worldObject.addEntity(new EntityObject(15, 5, Actor.Enemy));
 
+        worldObject.addEntity(new EntityObject(10, 5, Actor.Enemy));
+
         for(int i = 0; i < 100; i++){
             if(i!=2) {
                 if(i+1%10!=0) {

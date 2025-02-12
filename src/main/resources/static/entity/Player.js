@@ -2,6 +2,7 @@ import {Entity} from "./Entity.js";
 import {isDown} from "../micro-util.js";
 import {deathCount, init, minusLife, renderer} from "../index.js";
 import {callDeathUI} from "../specialScenes/deathUI.js";
+import {getEntity} from "../world-object.js";
 
 class Player extends Entity {
 
@@ -15,7 +16,7 @@ class Player extends Entity {
     addPosition(x, y) {
         if(this.world.scene !== null){
             if(this.world.scene.camera !== null){
-                const position = this.world.scene.camera.onCameraPosition(this.getPosition.x+x, this.getPosition.y+y);
+                const position = this.world.scene.camera.onCameraPosition(this.getPosition.x+x, this.getPosition.y+y, this.bodySize.x/2, this.bodySize/2);
                 x = position[0]-this.getPosition.x;
                 y = position[1]-this.getPosition.y;
             }
@@ -60,19 +61,45 @@ class Player extends Entity {
         console.log("death");
         e.setCanceled = true;
         minusLife();
+
+        //現ワールドのエンティティをキル
+
+        const deleteEntities = [];
+        this.world.entities.forEach(entity=>deleteEntities.push(entity));
+        deleteEntities.forEach(temp=>{
+            if(!(temp instanceof Player)){
+                temp.kill();
+            }
+        });
+        //現在のワールドのレンダリングを停止し、死亡UIをレンダリング
         this.world.scene.stopRender();
         const camera = this.world.scene.camera;
-        camera.setPosition(this.getPosition.x, camera.getPosition.y);
         const world = callDeathUI(renderer, this.scale, camera.getWidth, camera.getHeight);
+
+        //プレイヤーの再スポーン位置をセット
         this.setPosition(1, 4);
+        camera.reToggle();
+
         this.time = new Date().getTime();
+        //死亡UIのティックループに追加
         world.scene.addTickLoop(function () {
+            //2000ms経過するまで死亡UIを表示
             if(new Date().getTime()-this.time > 2000){
+                //死亡UIのレンダリングを停止
                 world.scene.stopRender();
-                world.entities.forEach(temp=>temp.dispose());
+
+                //現ワールドのレンダリングを再開し、エンティティを再召喚
                 this.world.scene.restartRender();
+
+                getEntity(this.world.name, this.scale).then(entities=>{
+                    entities.forEach(entity=>{
+                        if(!(entity instanceof Player)) {
+                            this.world.spawnEntity(entity);
+                        }
+                    });
+                });
             }
-        }.bind(this))
+        }.bind(this));
     }
 }
 

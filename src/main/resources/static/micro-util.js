@@ -26,5 +26,12 @@ function limit(min, max, x){
     return x;
 }
 
+/*UUIDを生成*/
+function uuid() {
+    return URL.createObjectURL(new Blob()).slice(-36)
+}
+
+
 export {isDown, downKey, upKey};
-export {limit}
+export {limit};
+export {uuid};

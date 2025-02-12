@@ -5,8 +5,9 @@ class WorldObject {
     entities = [];
     #scale;
     #scene = null;
+    #name
 
-    constructor(width=0, height=0, scale) {
+    constructor(width=0, height=0, scale, name) {
         /** @type {Number} */this.height = height;
         /** @type {Number} */this.width = width;
         /** @type {Block[Block]} */const worlds = [];
@@ -21,6 +22,7 @@ class WorldObject {
             }
         }
         this.worlds = worlds;
+        this.#name = name;
     }
 
     get getHeight() {
@@ -97,7 +99,6 @@ class WorldObject {
      */
     spawnEntity(entity){
         entity.world = this;
-
         if(this.scene !== null) {
             this.scene.add(entity.entity);
             this.scene.addTickLoop(entity.loopFunction);
@@ -134,6 +135,14 @@ class WorldObject {
     get scene(){
         return this.#scene;
     }
+
+    /**
+     * ワールドの名前を取得します。
+     * @returns {String}
+     */
+    get name(){
+        return this.#name;
+    }
 }
 
 function getWorld(number, scale) {
@@ -152,7 +161,7 @@ function getWorld(number, scale) {
         socket.onmessage = function (event) {
             const jsonData = JSON.parse(event.data);
             console.log(event.data);
-            const worldObject = new WorldObject(jsonData.world_info.width, jsonData.world_info.height, scale);
+            const worldObject = new WorldObject(jsonData.world_info.width, jsonData.world_info.height, scale, number);
             //ブロック構築用のループ
             jsonData.stage.forEach(stage=>{
                 if (stage.type !== 0) {
@@ -166,11 +175,44 @@ function getWorld(number, scale) {
                 const instanceEntity = new (Actor.getActor(entity.type).properties.class)(scale, entity.nbt);
                 instanceEntity.setPosition(entity.x, entity.y);
                 worldObject.spawnEntity(instanceEntity);
-            })
+            });
+            socket.close();
 
             return resolve(worldObject);
         }
-    })
+    });
 }
 
-export {getWorld, WorldObject};
+function getEntity(number, scale){
+    let socket;
+    socket = new SockJS("/stage/socket");
+    //接続確立
+    socket.onopen = function () {
+        console.log("接続確立");
+        socket.send(JSON.stringify({
+            "number": number,
+            "type": "GET"
+        }));
+    }
+
+    return new Promise(resolve => {
+        socket.onmessage = function (event) {
+            const jsonData = JSON.parse(event.data);
+
+            const entities = [];
+            //エンティティ用のループ
+            jsonData.entities.forEach(entity=>{
+                if(entity.type !== 0) {
+                    const instanceEntity = new (Actor.getActor(entity.type).properties.class)(scale, entity.nbt);
+                    instanceEntity.setPosition(entity.x, entity.y);
+                    entities.push(instanceEntity);
+                }
+            });
+
+            socket.close();
+            return resolve(entities);
+        }
+    });
+}
+
+export {getWorld, getEntity, WorldObject};

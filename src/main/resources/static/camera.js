@@ -69,6 +69,18 @@ class Camera{
         this.toggleEntityInfo.player = player;
     }
 
+    /**
+     * toggleが有効である場合、エンティティを再トグルします。
+     */
+    reToggle(){
+        if(this.toggleEntityInfo.toggled){
+            const player = this.toggleEntityInfo.player;
+            if((player.getPosition.x - this.width/2) < 0){
+                this.setPosition(this.width/this.scale/2, this.getPosition.y);
+            }
+        }
+    }
+
 
     toggled(){
         if(this.toggleEntityInfo.toggled){
@@ -103,13 +115,15 @@ class Camera{
      * 例：カメラの座標がx=5で、width=10の場合、カメラに映る最大の座標はx=0〜10となる。このメソッドにx=19を代入すると10になる。-1を代入すると0になる。
      * @param x {Number}
      * @param y {Number}
+     * @param thresholdX {Number}
+     * @param thresholdY {Number}
      */
-    onCameraPosition(x, y){
+    onCameraPosition(x, y, thresholdX, thresholdY){
         const range_width = this.width/2/this.scale;
         const range_height = this.height/2/this.scale;
 
-        const min_y = this.getPosition.y-range_height, max_y = this.getPosition.y+range_height;
-        const min_x = this.getPosition.x-range_width, max_x = this.getPosition.x+range_width;
+        const min_y = this.getPosition.y-range_height-thresholdY, max_y = this.getPosition.y+range_height+thresholdY;
+        const min_x = this.getPosition.x-range_width-thresholdX, max_x = this.getPosition.x+range_width+thresholdX;
 
         return [limit(min_x, max_x, x), limit(min_y, max_y, y)];
     }

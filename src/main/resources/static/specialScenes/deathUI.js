@@ -6,19 +6,19 @@ import {Player} from "../entity/Player.js";
 import {TextEntity} from "../entity/TextEntity.js";
 
 function callDeathUI(render, scale, width, height){
-    const worldObject = new WorldObject(width, height, scale);
+    const worldObject = new WorldObject(width, height, scale, "deathUI");
     const scene = new Scene();
     const camera = new Camera(width, height, scale);
+    worldObject.displayWorld(scene);
+    worldObject.scene.render(renderer, camera);
     new TextEntity(scale, `x${deathCount}`, "M PLUS 1 Code_Regular.json", camera, {size:20}).then(text=>{
         camera.setPosition(width/scale/2, height/scale/2);
-        worldObject.displayWorld(scene);
         const player = new Player(scale, {"noAI":true});
         player.setPosition(camera.getPosition.x-1, camera.getPosition.y);
         worldObject.spawnEntity(player);
         text.addPosition(camera.getPosition.x, camera.getPosition.y);
         //text.entity.position.z = 1000-30;
         worldObject.spawnEntity(text);
-        worldObject.scene.render(renderer, camera);
     });
 
     return worldObject;

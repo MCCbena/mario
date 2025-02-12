@@ -5,6 +5,7 @@ import {EntityDeathEvent} from "../Events/EntityDeathEvent.js";
 import {EntityGravityEvent} from "../Events/EntityGravityEvent.js";
 import {EntityLandingEvent} from "../Events/EntityLandingEvent.js";
 import {EntityInstanceLoopEvent} from "../Events/EntityInstanceLoopEvent.js";
+import {uuid} from "../micro-util.js";
 
 /* #NBTでサポートされている値
 
@@ -73,7 +74,7 @@ class Entity {
      * @param nbt {{}}
      */
     constructor(body_size, scale, m=10, nbt={}) {
-        this.#UUID = crypto.randomUUID();
+        this.#UUID = uuid();
 
         if(body_size !== null && scale !== null) {
             this.sizeX = body_size[0] * scale;
