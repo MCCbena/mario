@@ -1,5 +1,6 @@
 import {Material} from "./block/Material.js";
 import {Actor} from "./entity/Actor.js";
+import {EntitySpawnEvent} from "./Events/EntitySpawnEvent.js";
 
 class WorldObject {
     entities = [];
@@ -96,8 +97,15 @@ class WorldObject {
 
     /**
      * @param entity {Entity}
+     * @param x {Number}
+     * @param y {Number}
      */
-    spawnEntity(entity){
+    spawnEntity(entity, x, y){
+        const event = new EntitySpawnEvent(x, y, this);
+        entity.entitySpawnEvent(event);
+        if(event.getCanceled) return;
+
+        entity.setPosition(event.spawnX, event.spawnY);
         entity.world = this;
         if(this.scene !== null) {
             this.scene.add(entity.entity);
@@ -173,8 +181,7 @@ function getWorld(number, scale) {
             //エンティティ用のループ
             jsonData.entities.forEach(entity=>{
                 const instanceEntity = new (Actor.getActor(entity.type).properties.class)(scale, entity.nbt);
-                instanceEntity.setPosition(entity.x, entity.y);
-                worldObject.spawnEntity(instanceEntity);
+                worldObject.spawnEntity(instanceEntity, entity.x, entity.y);
             });
             socket.close();
 
@@ -204,8 +211,10 @@ function getEntity(number, scale){
             jsonData.entities.forEach(entity=>{
                 if(entity.type !== 0) {
                     const instanceEntity = new (Actor.getActor(entity.type).properties.class)(scale, entity.nbt);
-                    instanceEntity.setPosition(entity.x, entity.y);
-                    entities.push(instanceEntity);
+                    entities.push({
+                        "instance":instanceEntity,
+                        "spawn": [entity.x, entity.y]
+                    });
                 }
             });
 

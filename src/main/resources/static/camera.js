@@ -117,6 +117,7 @@ class Camera{
      * @param y {Number}
      * @param thresholdX {Number}
      * @param thresholdY {Number}
+     * @retuns [x, y]
      */
     onCameraPosition(x, y, thresholdX, thresholdY){
         const range_width = this.width/2/this.scale;

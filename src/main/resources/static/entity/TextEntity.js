@@ -5,6 +5,7 @@ import * as THREE from "three";
 
 
 class TextEntity extends Entity{
+    camera;
     /**
      * @param scale {Number}
      * @param text {String}
@@ -45,13 +46,15 @@ class TextEntity extends Entity{
 
                 this.entity.lookAt(camera.rawCamera.position);
                 this.entity.position.z -= 30;
+                this.camera = camera;
 
                 resolve(this);
             });
         });
     }
     setPosition(x, y) {
-        this.entity.position.set(parseInt(x*this.scale), parseInt(y*this.scale), 1000-30);
+        this.entity.position.x = parseInt(x*this.scale);
+        this.entity.position.y = parseInt(y*this.scale);
     }
 }
 

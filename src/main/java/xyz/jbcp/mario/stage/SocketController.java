@@ -58,13 +58,17 @@ public class SocketController extends TextWebSocketHandler {
 
         worldObject.addEntity(new EntityObject(10, 5, Actor.Enemy));
 
+        worldObject.addEntity(new EntityObject(12, 1, Actor.Midpoint));
+        worldObject.addEntity(new EntityObject(22, 1, Actor.GoalPoint));
+
         for(int i = 0; i < 100; i++){
             if(i!=2) {
-                if(i+1%10!=0) {
-                    BlockObject blockObject = new BlockObject(i, 0, Material.FLOOR);
-                    blockObject.getNbt().put("test", new ArrayList<>());
-                    worldObject.setBlock(blockObject);
-                }
+                BlockObject blockObject = new BlockObject(i, 0, Material.FLOOR);
+                worldObject.setBlock(blockObject);
+            }
+            if((i+1)%10 == 0){
+                BlockObject blockObject = new BlockObject(i, 1, Material.FLOOR);
+                worldObject.setBlock(blockObject);
             }
         }
         worldObject.setBlock(new BlockObject(5, 3, Material.FLOOR));

@@ -446,6 +446,11 @@ class Entity {
      * @param e {EntityInstanceLoopEvent}
      */
     entityInstanceLoopEvent(e){}
+    /**
+     * エンティティがスポーンした時に呼ばれます。
+     * @param e {EntitySpawnEvent}
+     */
+    entitySpawnEvent(e){}
 
 }
 

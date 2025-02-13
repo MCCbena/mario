@@ -1,10 +1,17 @@
 import {Entity} from "./Entity.js";
 import {isDown} from "../micro-util.js";
 import {deathCount, init, minusLife, renderer} from "../index.js";
-import {callDeathUI} from "../specialScenes/deathUI.js";
+import {callLifeUI} from "../specialScenes/displayLifeUI.js";
 import {getEntity} from "../world-object.js";
+import {Enemy} from "./Enemy.js";
 
+/* #NBTでサポートされている値
+savePointX: Number  X軸のスポーン位置を設定します。
+savePointY: Number  Y軸のスポーン位置を設定します。
+ */
 class Player extends Entity {
+    spawnX;
+    spawnY;
 
     constructor(scale, nbt={}) {
         super([0.6, 1], scale, 10, nbt);
@@ -37,7 +44,7 @@ class Player extends Entity {
         }
         if(isDown("w")){
             if(!this.gravityProperties.fallStart){
-                this.jump(4);
+                this.jump(2);
             }
         }
         if(isDown("k")&&this.killed === undefined){
@@ -47,14 +54,21 @@ class Player extends Entity {
     }
 
     entityContactEvent(e) {
-        if(!this.gravityProperties.fallStart) {
-            this.kill();
-        }else {
+        if(e.getTouchedEntity instanceof Enemy) {
             const entity = e.getTouchedEntity;
-            this.setPosition(this.getPosition.x, entity.getPosition.y+entity.bodySize.y);
-            this.jump(this.gravityProperties.initialSpeed+1.5);
-            entity.kill();
+            if (!this.gravityProperties.fallStart) {
+                this.kill();
+            } else {
+                this.setPosition(this.getPosition.x, entity.getPosition.y + entity.bodySize.y);
+                this.jump(this.gravityProperties.initialSpeed + 1.5);
+                entity.kill();
+            }
         }
+    }
+
+    entitySpawnEvent(e) {
+        this.spawnX = e.spawnX;
+        this.spawnY = e.spawnY;
     }
 
     entityDeathEvent(e) {
@@ -74,10 +88,10 @@ class Player extends Entity {
         //現在のワールドのレンダリングを停止し、死亡UIをレンダリング
         this.world.scene.stopRender();
         const camera = this.world.scene.camera;
-        const world = callDeathUI(renderer, this.scale, camera.getWidth, camera.getHeight);
+        const world = callLifeUI(renderer, this.scale, camera.getWidth, camera.getHeight);
 
         //プレイヤーの再スポーン位置をセット
-        this.setPosition(1, 4);
+        this.setPosition(this.getNBTsafe("savePointX", this.spawnX), this.getNBTsafe("savePointY", this.spawnY));
         camera.reToggle();
 
         this.time = new Date().getTime();
@@ -94,7 +108,7 @@ class Player extends Entity {
                 getEntity(this.world.name, this.scale).then(entities=>{
                     entities.forEach(entity=>{
                         if(!(entity instanceof Player)) {
-                            this.world.spawnEntity(entity);
+                            this.world.spawnEntity(entity.instance, entity.spawn[0], entity.spawn[1]);
                         }
                     });
                 });

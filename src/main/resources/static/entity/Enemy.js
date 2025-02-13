@@ -1,4 +1,5 @@
 import {Entity} from "./Entity.js";
+import {Player} from "./Player.js";
 
 class Enemy extends Entity{
     constructor(scale, nbt) {
@@ -13,7 +14,8 @@ class Enemy extends Entity{
     entityInstanceLoopEvent(e) {
 
         if(this.world.scene.camera !== null) {
-            if(!this.world.scene.camera.onCamera(this.getPosition.x, this.getPosition.y)) {
+            const cameraPos = this.world.scene.camera.onCameraPosition(this.getPosition.x, this.getPosition.y, this.bodySize.x/2, this.bodySize.y/2);
+            if(this.getPosition.x !== cameraPos[0] || this.getPosition.y !== cameraPos[1]) {
                 e.setCanceled = true;
             }
         }

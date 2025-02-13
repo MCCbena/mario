@@ -3,6 +3,8 @@ package xyz.jbcp.mario.stage.Entity;
 public enum Actor {
     Player(0),
     Enemy(1),
+    Midpoint(2),
+    GoalPoint(3),
     ;
 
     private final int id;

@@ -44,9 +44,13 @@ function minusLife(){
     deathCount--;
 }
 
+function setLife(){
+    deathCount = 4;
+}
+
 
 document.onkeydown = downKey;
 document.onkeyup = upKey;
 init();
 
-export {renderer, init, deathCount, minusLife};
+export {renderer, init, deathCount, minusLife, setLife};
