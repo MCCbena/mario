@@ -61,6 +61,7 @@ public class SocketController extends TextWebSocketHandler {
         worldObject.addEntity(new EntityObject(12, 1, Actor.Midpoint));
         worldObject.addEntity(new EntityObject(22, 1, Actor.GoalPoint));
 
+        worldObject.addEntity(new EntityObject(1, 4, Actor.InvisibleBlock));
         for(int i = 0; i < 100; i++){
             if(i!=2) {
                 BlockObject blockObject = new BlockObject(i, 0, Material.FLOOR);

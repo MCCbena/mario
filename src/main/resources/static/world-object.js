@@ -63,7 +63,11 @@ class WorldObject {
         /** @type Number */ x,
         /** @type Number */ y
     ){
+        if(this.worlds[y][x] !== null && this.#scene !== null){
+            this.#scene.remove(this.worlds[y][x].mesh);
+        }
         this.worlds[y][x] = object;
+
         if(object.mesh !== null){
             object.mesh.position.set(parseInt(x*this.#scale), parseInt(y*this.#scale), 0);
             if(this.#scene !== null) this.#scene.add(object.mesh);

@@ -5,7 +5,8 @@ import {callLifeUI} from "../specialScenes/displayLifeUI.js";
 
 class GoalPoint extends Entity {
     constructor(scale, nbt) {
-        super([0.6, 4], scale, 1, nbt);
+        const material = new THREE.MeshBasicMaterial({color:0x198713})
+        super([0.6, 4], scale, 1, material, nbt);
     }
 
     entityContactEvent(e) {

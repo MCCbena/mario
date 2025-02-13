@@ -3,7 +3,8 @@ import {Player} from "./Player.js";
 
 class Enemy extends Entity{
     constructor(scale, nbt) {
-        super([0.6, 0.6], scale, 10, nbt);
+        const material = new THREE.MeshNormalMaterial();
+        super([0.6, 0.6], scale, 10, material, nbt);
         this.gravityProperties.g = 9.8;
         this.moving=0.05;
 

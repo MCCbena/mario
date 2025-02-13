@@ -5,6 +5,7 @@ public enum Actor {
     Enemy(1),
     Midpoint(2),
     GoalPoint(3),
+    InvisibleBlock(4),
     ;
 
     private final int id;

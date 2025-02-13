@@ -1,5 +1,8 @@
 import * as THREE from "three";
 
+/* NBTでサポートされている値
+temporary   bool    プレイヤーが死んだとき、ブロックを削除します。
+ */
 class Block{
     #properties = {};
 
@@ -7,7 +10,7 @@ class Block{
     #hitbox;
     mesh = null;
 
-    #nbt = {};
+    nbt = {};
 
     /**
      * @param scale {Number}
@@ -19,7 +22,7 @@ class Block{
         this.#id=id;
         this.#hitbox=hitbox;
 
-        this.#nbt = nbt;
+        this.nbt = nbt;
     }
 
     generateDefaultMaterial(texturePath){
@@ -53,6 +56,15 @@ class Block{
         this.#properties[key] = value;
     }
 
+    /**
+     * NBTから値を取り出すとき、undefinedが返されるのを抑制します。
+     * @param key {String}
+     * @param alternativeValues undefinedを出したときに代わりに出力する値
+     */
+    getNBTsafe(key, alternativeValues){
+        if(this.nbt[key] === undefined) return alternativeValues;
+        else return this.nbt[key];
+    }
 }
 
 export {Block}

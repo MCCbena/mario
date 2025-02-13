@@ -4,6 +4,7 @@ import {deathCount, init, minusLife, renderer} from "../index.js";
 import {callLifeUI} from "../specialScenes/displayLifeUI.js";
 import {getEntity} from "../world-object.js";
 import {Enemy} from "./Enemy.js";
+import {Air} from "../block/Air.js";
 
 /* #NBTでサポートされている値
 savePointX: Number  X軸のスポーン位置を設定します。
@@ -14,8 +15,9 @@ class Player extends Entity {
     spawnY;
 
     constructor(scale, nbt={}) {
-        super([0.6, 1], scale, 10, nbt);
-        this.gravityProperties.g = 9.8
+        const material = new THREE.MeshNormalMaterial();
+        super([0.6, 1], scale, 10, material, nbt);
+        this.gravityProperties.g = 9.8;
 
         this.addTickLoop(this.key_move.bind(this));
     }
@@ -44,7 +46,7 @@ class Player extends Entity {
         }
         if(isDown("w")){
             if(!this.gravityProperties.fallStart){
-                this.jump(2);
+                this.jump(4);
             }
         }
         if(isDown("k")&&this.killed === undefined){
@@ -105,6 +107,7 @@ class Player extends Entity {
                 //現ワールドのレンダリングを再開し、エンティティを再召喚
                 this.world.scene.restartRender();
 
+
                 getEntity(this.world.name, this.scale).then(entities=>{
                     entities.forEach(entity=>{
                         if(!(entity instanceof Player)) {
@@ -112,6 +115,16 @@ class Player extends Entity {
                         }
                     });
                 });
+
+
+                //ワールド内の一時ブロックを削除
+                for (let x = 0; x < this.world.getWidth; x++) {
+                    for (let y = 0; y < this.world.getHeight; y++) {
+                        if(this.world.getBlockObject(x, y).getNBTsafe("temporary", false)){
+                            this.world.setBlockObject(new Air(this.scale), x, y);
+                        }
+                    }
+                }
             }
         }.bind(this));
     }

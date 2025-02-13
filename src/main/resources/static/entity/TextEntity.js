@@ -15,7 +15,7 @@ class TextEntity extends Entity{
      * @param color {Number}
      */
     constructor(scale, text, fontPath, camera, param={size:100}, color=0xFFFFFF) {
-        super(null, scale,1, {"noAI": true});
+        super(null, scale,1, null, {"noAI": true});
         // Fonts
 
         return new Promise((resolve)=> {

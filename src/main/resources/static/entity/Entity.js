@@ -28,6 +28,7 @@ class Entity {
         "fallStart": false,
         "initialSpeed": 0,
         "inertialForce": 0,
+        "state": "",
     };
 
     status = {
@@ -71,17 +72,17 @@ class Entity {
      * @param body_size {[width, height]}
      * @param scale {Number}
      * @param m {Number}
+     * @param material
      * @param nbt {{}}
      */
-    constructor(body_size, scale, m=10, nbt={}) {
+    constructor(body_size, scale, m, material, nbt={}) {
         this.#UUID = uuid();
 
-        if(body_size !== null && scale !== null) {
+        if(body_size !== null && scale !== null && material != null) {
             this.sizeX = body_size[0] * scale;
             this.sizeY = body_size[1] * scale;
 
 
-            const material = new THREE.MeshNormalMaterial();
             const entityGeo = new THREE.BoxGeometry(this.sizeX, this.sizeY, 0);
             this.entity = new THREE.Mesh(entityGeo, material);
         }
@@ -331,6 +332,7 @@ class Entity {
 
             let state= "flying";
             if (y <= 0) state = "fall";
+            this.gravityProperties.state = state;
             //プレイヤーが上昇しているか降下しているかを判定
             if (y <= 0) {
                 //落下の当たり判定制御
