@@ -46,7 +46,7 @@ class Player extends Entity {
         }
         if(isDown("w")){
             if(!this.gravityProperties.fallStart){
-                this.jump(4);
+                this.jump(2);
             }
         }
         if(isDown("k")&&this.killed === undefined){
@@ -121,7 +121,7 @@ class Player extends Entity {
                 for (let x = 0; x < this.world.getWidth; x++) {
                     for (let y = 0; y < this.world.getHeight; y++) {
                         if(this.world.getBlockObject(x, y).getNBTsafe("temporary", false)){
-                            this.world.setBlockObject(new Air(this.scale), x, y);
+                            this.world.removeBlockObject(x, y);
                         }
                     }
                 }
