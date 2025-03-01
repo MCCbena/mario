@@ -189,7 +189,7 @@ function getWorld(number, scale) {
             });
             socket.close();
 
-            return resolve(worldObject);
+            return resolve([worldObject, jsonData]);
         }
     });
 }

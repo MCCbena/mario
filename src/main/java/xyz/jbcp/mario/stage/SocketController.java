@@ -11,6 +11,7 @@ import xyz.jbcp.mario.stage.Block.BlockObject;
 import xyz.jbcp.mario.stage.Block.Material;
 import xyz.jbcp.mario.stage.Entity.Actor;
 import xyz.jbcp.mario.stage.Entity.EntityObject;
+import xyz.jbcp.mario.stage.worlds.one_one;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,32 +50,11 @@ public class SocketController extends TextWebSocketHandler {
     }
 
     private String getStage(String number) {
-        WorldObject worldObject = new WorldObject(2000, 2000);
-
-        EntityObject player = new EntityObject(1, 4, Actor.Player);
-        player.getNbt().put("toggleCamera", true);
-        worldObject.addEntity(player);
-        worldObject.addEntity(new EntityObject(15, 5, Actor.Enemy));
-
-        worldObject.addEntity(new EntityObject(10, 5, Actor.Enemy));
-
-        worldObject.addEntity(new EntityObject(12, 1, Actor.Midpoint));
-        worldObject.addEntity(new EntityObject(22, 1, Actor.GoalPoint));
-
-        worldObject.addEntity(new EntityObject(1, 4, Actor.InvisibleBlock));
-        for(int i = 0; i < 100; i++){
-            if(i!=2) {
-                BlockObject blockObject = new BlockObject(i, 0, Material.FLOOR);
-                worldObject.setBlock(blockObject);
-            }
-            if((i+1)%10 == 0){
-                BlockObject blockObject = new BlockObject(i, 1, Material.FLOOR);
-                worldObject.setBlock(blockObject);
-            }
+        WorldObject worldObject;
+        switch (number){
+            case "1-1"-> worldObject = one_one.get();
+            default -> worldObject = new WorldObject(2000, 2000);
         }
-        worldObject.setBlock(new BlockObject(5, 3, Material.FLOOR));
-        worldObject.setBlock(new BlockObject(9, 1, Material.FLOOR));
-        worldObject.setBlock(new BlockObject(0, 1, Material.FLOOR));
 
         //Jsonを生成
         ObjectMapper objectMapper = new ObjectMapper();

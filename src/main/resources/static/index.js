@@ -25,12 +25,12 @@ function init() {
     // ワールドを設定
     let world;
     getWorld("1-1", scale, scene).then(result=>{
-        world = result;
+        world = result[0];
 
         world.displayWorld(scene);
         for (let entitiesKey of world.entities) {
             if(entitiesKey.getNBTsafe("toggleCamera", false)){
-                camera.toggleEntity([0, 20], entitiesKey);
+                camera.toggleEntity([entitiesKey.nbt.toggleCameraStart, entitiesKey.nbt.toggleCameraStop], entitiesKey);
                 break;
             }
         }
