@@ -6,6 +6,7 @@ import {EntityGravityEvent} from "../Events/EntityGravityEvent.js";
 import {EntityLandingEvent} from "../Events/EntityLandingEvent.js";
 import {EntityInstanceLoopEvent} from "../Events/EntityInstanceLoopEvent.js";
 import {uuid} from "../micro-util.js";
+import {EntityInstanceLoopAfterEvent} from "../Events/EntityInstanceLoopAfterEvent.js";
 
 /* #NBTでサポートされている値
 
@@ -22,12 +23,16 @@ class Entity {
 
     nbt;
 
+    //重力に関する様々な情報を保存します。
     gravityProperties = {
         "g": 0,
         "fallStartTime": null,
         "fallStart": false,
+        "initialY": 0,
+        "y_bak": 0,
         "initialSpeed": 0,
         "inertialForce": 0,
+        /**fall, flying or nothing("")**/
         "state": "",
     };
 
@@ -40,7 +45,10 @@ class Entity {
 
 
     loopFunction = function (){
-        if(this.getNBTsafe("noAI", false)) return;
+        if(this.getNBTsafe("noAI", false)) {
+            this.entityInstanceLoopAfterEvent(new EntityInstanceLoopAfterEvent());
+            return;
+        }
 
         const e = new EntityInstanceLoopEvent();
         this.entityInstanceLoopEvent(e);
@@ -65,6 +73,8 @@ class Entity {
             }
         });
         this.removeMethod = [];
+
+        this.entityInstanceLoopAfterEvent(new EntityInstanceLoopAfterEvent());
     }.bind(this);
 
     /**
@@ -78,13 +88,14 @@ class Entity {
     constructor(body_size, scale, m, material, nbt={}) {
         this.#UUID = uuid();
 
-        if(body_size !== null && scale !== null && material != null) {
+        if(body_size !== null && scale !== null) {
             this.sizeX = body_size[0] * scale;
             this.sizeY = body_size[1] * scale;
 
-
-            const entityGeo = new THREE.BoxGeometry(this.sizeX, this.sizeY, 0);
-            this.entity = new THREE.Mesh(entityGeo, material);
+            if(material != null) {
+                const entityGeo = new THREE.BoxGeometry(this.sizeX, this.sizeY, 0);
+                this.entity = new THREE.Mesh(entityGeo, material);
+            }
         }
         if(scale !== null) this.scale = scale;
         if(m !== null) this.m = m;
@@ -124,6 +135,10 @@ class Entity {
         this.entity.position.y += parseInt(y*this.scale);
     }
 
+    /**
+     * エンティティの座標を返します。
+     * @returns {{x: number, y: number}}
+     */
     get getPosition() {
         return {
             "x": parseFloat(this.entity.position.x)/this.scale,
@@ -163,7 +178,7 @@ class Entity {
     }
 
     /**
-     * 指定した向きにあるブロックの中で一番プレイヤーに近いものの座標を返します。
+     * 指定した向きにあるブロックの中で一番エンティティに近いものの座標を返します。
      *
      * top/bottomはy座標, right/leftはx座標を返します。
      * @param direction {string} {top/bottom/right/left}
@@ -316,54 +331,63 @@ class Entity {
                 }
             }
         }.bind(this);
-        //プレイヤーが落下を開始した時に動作
+        //エンティティが落下を開始した時に動作
         if(!this.status.isOnGround && !this.gravityProperties.fallStart) {
             this.gravityProperties.fallStart = true;
             this.gravityProperties.fallStartTime = new Date();  //落下開始時刻を代入
+            this.gravityProperties.initialY = this.getPosition.y;
+            this.gravityProperties.y_bak = 0;
+            console.log("fall start");
         }
 
         //空中にいるとき
         if(this.gravityProperties.fallStart) {
-            const g = this.gravityProperties.g; //重力加速度を取得
+            const g = this.gravityProperties.g*4; //重力加速度を取得
             const t = (new Date().getTime() - this.gravityProperties.fallStartTime.getTime())/1000; //経過時間を秒で取得
+
             const v0 = this.gravityProperties.initialSpeed;
-            const y = v0 * t - (0.5 * g * t*t); //自由落下の公式により計算
-            const entity_fall_y = this.getPosition.y+y //プレイヤーの座標が何ブロック下になるかを計算
+            const y = (v0 * t) - (0.5 * g * t*t); //自由落下の公式により計算
+            const fall_state = this.gravityProperties.y_bak - y > 0;
+            this.gravityProperties.y_bak = y;
+            const entity_fall_y = this.gravityProperties.initialY+y //エンティティの座標が何ブロック下になるかを計算
 
             let state= "flying";
-            if (y <= 0) state = "fall";
+            if (fall_state) state = "fall";
             this.gravityProperties.state = state;
-            //プレイヤーが上昇しているか降下しているかを判定
-            if (y <= 0) {
+            //エンティティが上昇しているか降下しているかを判定
+            if (fall_state) {
                 //落下の当たり判定制御
                 const block_y = this.getNextBlock("bottom");
                 if(entity_fall_y <= block_y+1){
                     //イベントハンドラーを呼び出し
                     this.entityLandingEvent(new EntityLandingEvent(this.getPosition.x, block_y+1.01, "falling", this.gravityProperties.fallStartTime));
                     call_contact_event(this.getPosition.x, block_y+1.01, this.getPosition.x, this.getPosition.y);
-                    //プレイヤーの座標をブロックの座標+1に設定し、自由落下を解除
+                    //エンティティの座標をブロックの座標+1に設定し、自由落下を解除
                     this.setPosition(this.getPosition.x, block_y+1.01);
                     this.gravityProperties.fallStart = false;
                     this.gravityProperties.initialSpeed = 0;
+                    this.gravityProperties.initialY = 0;
                     return;
-                }else call_contact_event(this.getPosition.x, this.getPosition.y+y, this.getPosition.x, this.getPosition.y);
+                }else call_contact_event(this.getPosition.x, entity_fall_y, this.getPosition.x, this.getPosition.y);
 
             } else {
                 //上昇時の当たり判定制御
                 const block_y = this.getNextBlock("top");
-                if((entity_fall_y + this.bodySize.y >  block_y && block_y !== -1) && !this.isHitInWorldObject("right") && !this.isHitInWorldObject("left")){
+                if((entity_fall_y + this.bodySize.y >  block_y && block_y !== -1) ){
                     //イベントハンドラーを呼び出し
                     call_contact_event(this.getPosition.x, this.getPosition.y, this.getPosition.x, block_y - this.bodySize.y);
-                    //プレイヤーの座標をブロックの座標+1に設定し、初速を0
+                    //エンティティの座標をブロックの座標+1に設定し、初速を0
                     this.setPosition(this.getPosition.x, block_y - this.bodySize.y);
                     this.gravityProperties.initialSpeed = 0;
+                    this.gravityProperties.fallStartTime = new Date();
+                    this.gravityProperties.initialY = block_y - this.bodySize.y;
                     return;
                 }else call_contact_event(this.getPosition.x, this.getPosition.y, this.getPosition.x, y);
             }
             const e = new EntityGravityEvent(this.getPosition.x, this.getPosition.y+y, state, this.gravityProperties.fallStartTime);
             this.entityGravityEvent(e); //イベントの呼び出し
             if(e.getCanceled) return;
-            this.addPosition(0, y);
+            this.setPosition(this.getPosition.x, this.gravityProperties.initialY+y);
         }
     }
 
@@ -372,6 +396,7 @@ class Entity {
 
         this.gravityProperties.fallStart = true;
         this.gravityProperties.fallStartTime = new Date();  //落下開始時刻を代入
+        this.gravityProperties.initialY = this.getPosition.y;
     }
 
     /**
@@ -386,6 +411,8 @@ class Entity {
         scene.removeTickLoop(this.loopFunction);
         scene.remove(this.entity);
         let i = 0;
+        this.entity.material.dispose();
+        this.entity.geometry.dispose();
         for (let entitiesKey of this.world.entities) {
             if(entitiesKey.UUID === this.UUID){
                 this.world.entities.splice(i, 1);
@@ -448,6 +475,12 @@ class Entity {
      * @param e {EntityInstanceLoopEvent}
      */
     entityInstanceLoopEvent(e){}
+
+    /**
+     * LoopFunctionの終了際に呼び出されます。entityInstanceLoopEventでloopEventがキャンセルされた場合でも呼び出されます。
+     * @param e {EntityInstanceLoopAfterEvent}
+     */
+    entityInstanceLoopAfterEvent(e){}
     /**
      * エンティティがスポーンした時に呼ばれます。
      * @param e {EntitySpawnEvent}

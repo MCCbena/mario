@@ -1,6 +1,6 @@
-import {Material} from "./block/Material.js";
-import {Actor} from "./entity/Actor.js";
-import {EntitySpawnEvent} from "./Events/EntitySpawnEvent.js";
+import {Material} from "../block/Material.js";
+import {Actor} from "../entity/Actor.js";
+import {EntitySpawnEvent} from "../Events/EntitySpawnEvent.js";
 
 class WorldObject {
     entities = [];
@@ -14,6 +14,7 @@ class WorldObject {
         /** @type {Block[Block]} */const worlds = [];
         /**@type {Number} */this.#scale = scale;
 
+        console.log(`大きさ: ${width}, ${height}`)
         //画面サイズ分AIRオブジェクトを生成して代入
         for(let y = 0; y < height; y++) {
             worlds.push([]);
@@ -63,10 +64,16 @@ class WorldObject {
         /** @type Number */ x,
         /** @type Number */ y
     ){
-        if(this.worlds[y][x] !== null && this.#scene !== null){
+
+        if(this.worlds[y][x] !== null && this.#scene !== null && this.worlds[y][x].mesh!==null){
+            if(this.worlds[y][x].mesh.material !== null) this.worlds[y][x].mesh.material.dispose();
+            this.worlds[y][x].mesh.geometry.dispose();
             this.#scene.remove(this.worlds[y][x].mesh);
         }
         this.worlds[y][x] = object;
+        object.world = this;
+        object.x = x;
+        object.y = y;
 
         if(object.mesh !== null){
             object.mesh.position.set(parseInt(x*this.#scale), parseInt(y*this.#scale), 0);
@@ -78,6 +85,11 @@ class WorldObject {
         /** @type Number */ x,
         /** @type Number */ y
     ){
+        const removeBlock = this.getBlockObject(x, y);
+        removeBlock.world = null;
+        removeBlock.x = null;
+        removeBlock.y = null;
+
         this.setBlockObject(new Material.AIR.properties.class(this.#scale), x, y);
     }
 
@@ -154,6 +166,18 @@ class WorldObject {
      */
     get name(){
         return this.#name;
+    }
+
+    /**
+     * メモリリーク解消のためにワールドをfreeします。
+     */
+    clear(){
+        this.worlds.forEach(block=>{
+            if(block.mesh !== undefined && block.mesh !== null) {
+                if (block.mesh.material !== null) block.mesh.material.dispose();
+                block.mesh.geometry.dispose();
+            }
+        });
     }
 }
 

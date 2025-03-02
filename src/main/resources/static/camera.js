@@ -76,7 +76,7 @@ class Camera{
         if(this.toggleEntityInfo.toggled){
             const player = this.toggleEntityInfo.player;
             if((player.getPosition.x - this.width/2) < 0){
-                this.setPosition(this.width/this.scale/2, this.getPosition.y);
+                this.setPosition(this.width/this.scale/2+player.getPosition.x, this.getPosition.y);
             }
         }
     }

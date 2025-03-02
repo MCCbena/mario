@@ -103,6 +103,13 @@ class Scene{
     get camera(){
         return this.#camera;
     }
+
+    /**
+     * メモリリーク解消のためにsceneをfreeします。
+     */
+    clear(){
+        this.scene.dispose();
+    }
 }
 
 export {Scene};

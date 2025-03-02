@@ -3,24 +3,19 @@ package xyz.jbcp.mario.stage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.annotation.Nullable;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import xyz.jbcp.mario.stage.Block.BlockObject;
-import xyz.jbcp.mario.stage.Block.Material;
-import xyz.jbcp.mario.stage.Entity.Actor;
-import xyz.jbcp.mario.stage.Entity.EntityObject;
 import xyz.jbcp.mario.stage.worlds.one_one;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class SocketController extends TextWebSocketHandler {
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(@Nullable WebSocketSession session) {
         System.out.println("WebSocketの接続が確立しました。");
     }
     /**
@@ -29,7 +24,7 @@ public class SocketController extends TextWebSocketHandler {
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
         System.out.println("メッセージ受信:" + message.getPayload());
-        String responseJson = "";
+        String responseJson;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             ReceiveData receiveData = objectMapper.readValue(message.getPayload(), ReceiveData.class);
@@ -45,7 +40,7 @@ public class SocketController extends TextWebSocketHandler {
      * 接続終了
      */
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(@Nullable WebSocketSession session, @Nullable CloseStatus status) {
         System.out.println("WebSocketの接続が終了しました。");
     }
 
@@ -113,12 +108,17 @@ public class SocketController extends TextWebSocketHandler {
 
     //valueを型に変換してobjectNodeに代入します。
     private void putJson(ObjectNode objectNode, String key, Object value) {
-        if (value instanceof Long temp)
+        if (value instanceof Integer temp){
             objectNode.put(key, temp);
-        if (value instanceof Double temp)
+            return;
+        }
+        if (value instanceof Double temp){
             objectNode.put(key, temp);
+            return;
+        }
         if (value instanceof Boolean temp){
             objectNode.put(key, temp);
+            return;
         }
         if (value instanceof String temp)
             objectNode.put(key, temp);

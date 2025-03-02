@@ -7,8 +7,14 @@ class Block{
     #properties = {};
 
     #id;
-    #hitbox;
+    hitbox;
     mesh = null;
+    scale;
+
+    //ワールドにセットされた際にnullではなくなります。
+    world = null; //セットされているワールド
+    x = null; //x座標
+    y = null; //y座標
 
     nbt = {};
 
@@ -20,9 +26,10 @@ class Block{
      */
     constructor(scale, id, hitbox=true, nbt={}) {
         this.#id=id;
-        this.#hitbox=hitbox;
+        this.hitbox=hitbox;
 
         this.nbt = nbt;
+        this.scale=scale;
     }
 
     generateDefaultMaterial(texturePath){
@@ -37,11 +44,6 @@ class Block{
     generateMesh(scale, material){
         const geometry = new THREE.BoxGeometry(parseInt(scale), parseInt(scale), 0);
         return  new THREE.Mesh(geometry, material);
-    }
-
-
-    get hitbox(){
-        return this.#hitbox;
     }
 
     get properties(){

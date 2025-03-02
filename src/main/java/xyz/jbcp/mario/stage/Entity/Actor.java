@@ -2,10 +2,12 @@ package xyz.jbcp.mario.stage.Entity;
 
 public enum Actor {
     Player(0),
-    Enemy(1),
+    StandardEnemy(1),
     Midpoint(2),
     GoalPoint(3),
-    InvisibleBlock(4),
+    FallBlock(4),
+    SpawnInTheSky(5),
+    FallStdEnemy(6),
     ;
 
     private final int id;

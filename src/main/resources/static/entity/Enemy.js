@@ -2,42 +2,34 @@ import {Entity} from "./Entity.js";
 import {Player} from "./Player.js";
 
 class Enemy extends Entity{
-    constructor(scale, nbt) {
-        const material = new THREE.MeshNormalMaterial();
-        super([0.6, 0.6], scale, 10, material, nbt);
+    constructor(body_size, scale,m, material, nbt) {
+        super(body_size, scale, m, material, nbt);
         this.gravityProperties.g = 9.8;
-        this.moving=0.05;
-
-        this.time = new Date().getTime();
-        this.addTickLoop(this.loop_move.bind(this));
     }
 
+    //エンティティがカメラの範囲外に出たら動きを停止
     entityInstanceLoopEvent(e) {
 
         if(this.world.scene.camera !== null) {
             const cameraPos = this.world.scene.camera.onCameraPosition(this.getPosition.x, this.getPosition.y, this.bodySize.x/2, this.bodySize.y/2);
-            if(this.getPosition.x !== cameraPos[0] || this.getPosition.y !== cameraPos[1]) {
+            if(this.getPosition.x !== cameraPos[0]) {
                 e.setCanceled = true;
             }
         }
     }
 
-    loop_move(){
-
-        for (let rightElement of this.getHitInBlock().right) {
-            if(rightElement.hitbox){
-                this.moving = -this.moving;
-                console.log("change");
+    //プレイヤーが敵に触れたら殺す
+    entityContactEvent(e) {
+        if(e.getTouchedEntity instanceof Player) {
+            const player = e.getTouchedEntity;
+            if (!player.gravityProperties.fallStart) {
+                player.kill();
+            } else {
+                player.setPosition(player.getPosition.x, player.getPosition.y + this.bodySize.y);
+                player.jump(this.gravityProperties.initialSpeed + 1.5);
+                this.kill();
             }
         }
-
-        for (let leftElement of this.getHitInBlock().left) {
-            if(leftElement.hitbox){
-                this.moving = -this.moving;
-                console.log("change1");
-            }
-        }
-        if (new Date().getTime() - this.time > 10) this.addPosition(this.moving, 0);
     }
 }
 

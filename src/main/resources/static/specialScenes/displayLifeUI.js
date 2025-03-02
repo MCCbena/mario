@@ -1,4 +1,4 @@
-import {WorldObject} from "../world-object.js";
+import {WorldObject} from "../worldUtil/world-object.js";
 import {Scene} from "../scene.js";
 import {Camera} from "../camera.js";
 import {deathCount, renderer} from "../index.js";
