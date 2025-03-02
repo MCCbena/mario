@@ -161,7 +161,7 @@ public class one_one {
         entityObject = new EntityObject(107, 6, Actor.FallBlock);
         entityObject.getNbt().put("sizeX", 3);
         entityObject.getNbt().put("sizeY", 1);
-        entityObject.getNbt().put("texture", "images/floor.png");
+        entityObject.getNbt().put("texture", "images/brick.png");
         worldObject.addEntity(entityObject);
 
         worldObject.addEntity(new EntityObject(113, 1, Actor.GoalPoint));
