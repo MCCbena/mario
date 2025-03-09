@@ -8,6 +8,9 @@ public enum Actor {
     FallBlock(4),
     SpawnInTheSky(5),
     FallStdEnemy(6),
+    JumpTraceEnemy(7),
+    NoGravityEnemy(8),
+    MovingPole(9),
     ;
 
     private final int id;

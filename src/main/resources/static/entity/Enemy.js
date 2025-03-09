@@ -26,7 +26,7 @@ class Enemy extends Entity{
                 player.kill();
             } else {
                 player.setPosition(player.getPosition.x, player.getPosition.y + this.bodySize.y);
-                player.jump(this.gravityProperties.initialSpeed + 1.5);
+                player.jump(this.gravityProperties.initialSpeed + 10);
                 this.kill();
             }
         }

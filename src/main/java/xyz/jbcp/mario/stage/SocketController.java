@@ -48,8 +48,8 @@ public class SocketController extends TextWebSocketHandler {
     private String getStage(String number) {
         WorldObject worldObject;
         switch (number){
-            //case "1-1"-> worldObject = one_one.get();
-            case "1-1"-> worldObject = one_two.get();
+            case "1-1"-> worldObject = one_one.get();
+            case "1-2"-> worldObject = one_two.get();
             default -> worldObject = new WorldObject(100, 100);
         }
 

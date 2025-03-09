@@ -18,6 +18,8 @@ class Player extends Entity {
     spawnX;
     spawnY;
 
+    inputStop = false;
+
     constructor(scale, nbt={}) {
         const material = new THREE.MeshNormalMaterial();
         super([0.6, 1], scale, 10, material, nbt);
@@ -46,6 +48,7 @@ class Player extends Entity {
         const move = 0.00625*elapsedTime; //16ミリ秒で0.1動くイメージ(0.1/16=0.00625)
         if(move*this.scale<1) return;
         this.date_before = current;
+        if(this.inputStop) return;
         if(isDown("d")){
             if(!this.isHitInWorldObject("right")) {
                 this.addPosition(move, 0);
@@ -113,6 +116,7 @@ class Player extends Entity {
         console.log("death");
         e.setCanceled = true;
         minusLife();
+        this.inputStop = this;
 
         //現ワールドのエンティティをキル
 
@@ -159,6 +163,7 @@ class Player extends Entity {
                 lifeUI.clear();
                 //現ワールドのレンダリングを再開し、エンティティを再召喚
                 this.world.scene.restartRender();
+                this.inputStop = false;
             }
         }.bind(this));
     }

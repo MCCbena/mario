@@ -113,7 +113,7 @@ class Entity {
         }.bind(this));
 
         //イベントハンドラ
-        this.addTickLoop(this.#applyGravity.bind(this));
+        this.addTickLoop(this.applyGravity.bind(this));
         this.addTickLoop(function () {
             this.status.isOnGround = this.isHitInWorldObject("bottom");
             if(this.status.isOnGround) this.entityIsOnGroundEvent(new EntityIsOnGroundEvent());
@@ -325,7 +325,7 @@ class Entity {
     }
 
 
-    #applyGravity(){
+    applyGravity(){
         const call_contact_event = function (start_x, start_y, end_x, end_y){
             for (let x = start_x; x <= end_x; x+=0.1) {
                 for (let y = start_y; y < end_y; y+=0.1) {

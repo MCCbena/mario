@@ -1,7 +1,11 @@
 import {Block} from "./Block.js";
-import {StandardEnemy} from "../entity/StandardEnemy.js";
 import {HardBlock} from "./HardBlock.js";
+import {Actor} from "../entity/Actor.js";
 
+/* #NBTでサポートされている値
+entityID     int     スポーンするエンティティを選択します。
+entityNBT       String  スポーンするエンティティのNBTをJSON形式で渡せます。
+ */
 class HatenaBox extends Block{
     constructor(scale, nbt = {}) {
 
@@ -12,7 +16,9 @@ class HatenaBox extends Block{
 
     touch(){
         if(this.world != null) {
-            const entity = new StandardEnemy(this.scale, {"noAI": true});
+            const nbt = JSON.parse(this.getNBTsafe("entityNBT", "{}"));
+            nbt.noAI = true;
+            const entity = new (Actor.getActor(this.getNBTsafe("entityID", Actor.StandardEnemy.properties.id)).properties.class)(this.scale, nbt);
             this.tickloop = this.#entitySpawnAnimation.bind(this);
             this.world.scene.addTickLoop(this.tickloop);
             this.entity = entity;
