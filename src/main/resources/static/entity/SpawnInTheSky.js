@@ -12,7 +12,7 @@ sizeY:           Number    当たり判定の大きさYを指定します。
  */
 class SpawnInTheSky extends Entity{
     constructor(scale, nbt) {
-        super([nbt.sizeX === undefined ? 1:nbt.sizeX, nbt.sizeY === undefined ? 1:nbt.sizeY], scale, 10, new THREE.MeshNormalMaterial({transparent: true, opacity: 0}), nbt);
+        super([nbt.sizeX === undefined ? 1:nbt.sizeX, nbt.sizeY === undefined ? 1:nbt.sizeY], scale, 10, new THREE.MeshNormalMaterial({transparent: true, opacity: 1}), nbt);
     }
 
     entityContactEvent(e) {

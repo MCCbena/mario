@@ -14,7 +14,9 @@ toggleCamera:   bool    カメラをトグルするかを選択します。（1�
 noAI:           bool    loopFunctionを実行しません。
  */
 class Entity {
+    //ワールドにスポーンするまではnullです。
     world;
+
     sizeX = 0;
     sizeY = 0;
     scale = 0;

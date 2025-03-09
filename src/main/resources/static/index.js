@@ -12,7 +12,7 @@ const renderer = new THREE.WebGLRenderer({
     canvas: document.getElementById("glcanvas")
 });
 
-function init() {
+function init(worldName="1-1") {
     const scene = new Scene(0xA0B4FA);
     const camera = new Camera(width, height, scale);
 
@@ -24,7 +24,7 @@ function init() {
 
     // ワールドを設定
     let world;
-    getWorld("1-1", scale, scene).then(result=>{
+    getWorld(worldName, scale, scene).then(result=>{
         world = result[0];
 
         world.displayWorld(scene);

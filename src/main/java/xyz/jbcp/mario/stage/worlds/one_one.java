@@ -23,7 +23,7 @@ public class one_one {
         worldObject.addEntity(new EntityObject(12, 5, Actor.StandardEnemy));
 
         //床を設置
-        for(int i = 0; i < 2000; i++){
+        for(int i = 0; i < 120; i++){
             worldObject.setBlock(new BlockObject(i, 0, Material.FLOOR));
         }
         worldObject.setBlock(new BlockObject(0, 1, Material.FLOOR));
@@ -164,7 +164,9 @@ public class one_one {
         entityObject.getNbt().put("texture", "images/brick.png");
         worldObject.addEntity(entityObject);
 
-        worldObject.addEntity(new EntityObject(113, 1, Actor.GoalPoint));
+        entityObject = new EntityObject(113, 1, Actor.GoalPoint);
+        entityObject.getNbt().put("nextWorld", "1-2");
+        worldObject.addEntity(entityObject);
         
         return worldObject;
     }

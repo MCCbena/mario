@@ -9,6 +9,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import xyz.jbcp.mario.stage.worlds.one_one;
+import xyz.jbcp.mario.stage.worlds.one_two;
 
 import java.io.IOException;
 import java.util.Map;
@@ -47,8 +48,9 @@ public class SocketController extends TextWebSocketHandler {
     private String getStage(String number) {
         WorldObject worldObject;
         switch (number){
-            case "1-1"-> worldObject = one_one.get();
-            default -> worldObject = new WorldObject(2000, 2000);
+            //case "1-1"-> worldObject = one_one.get();
+            case "1-1"-> worldObject = one_two.get();
+            default -> worldObject = new WorldObject(100, 100);
         }
 
         //Jsonを生成
