@@ -21,7 +21,7 @@ public class one_two {
 
         player.getNbt().put("toggleCamera", true);
         player.getNbt().put("toggleCameraStart", 0);
-        player.getNbt().put("toggleCameraStop", 1000);
+        player.getNbt().put("toggleCameraStop", 124);
         worldObject.addEntity(player);
 
         //床を設置
@@ -113,6 +113,7 @@ public class one_two {
         worldObject.setBlock(new BlockObject(46, 7, Material.HATENA_BOX));
 
         entityObject = new EntityObject(46, 8, Actor.SpawnInTheSky);
+        entityObject.getNbt().put("spawnY", 8);
         entityObject.getNbt().put("entityNBT", "{\"g\":100}");
         worldObject.addEntity(entityObject);
         worldObject.addEntity(new EntityObject(46, 8, Actor.SpawnInTheSky));

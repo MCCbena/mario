@@ -28,7 +28,7 @@ function limit(min, max, x){
 
 /*UUIDを生成*/
 function uuid() {
-    return URL.createObjectURL(new Blob()).slice(-36)
+    return URL.createObjectURL(new Blob()).slice(-36);
 }
 
 

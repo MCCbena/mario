@@ -16,7 +16,7 @@ public class one_one {
         EntityObject player = new EntityObject(1, 1, Actor.Player);
         player.getNbt().put("toggleCamera", true);
         player.getNbt().put("toggleCameraStart", 0);
-        player.getNbt().put("toggleCameraStop", 1000);
+        player.getNbt().put("toggleCameraStop", 110);
         worldObject.addEntity(player);
 
 
