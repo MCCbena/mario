@@ -64,8 +64,7 @@ class Player extends Entity {
                 this.jump(20);
             }
         }
-        if(isDown("k")&&this.killed === undefined){
-            this.killed = true;
+        if(isDown("k")){
             this.kill();
         }
 
